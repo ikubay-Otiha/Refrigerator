@@ -1,22 +1,21 @@
 {% extends 'base.html' %}
 
-{% block header %}
-{% endblock header %}
-
 {% block content %}
-
+<a href="{% url 'create_door' %}" class="btn btn-primary">冷蔵室作成</a>
 <div class="list-group">
-    {% for item in object_list %}
-    <a href="{% url 'ingre' item.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
+    {% for door in object_list %}
+    <a href="{% url 'ingre' door.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
       <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">{{ item.doorname }}</h5>
-        <small>{{ item.date }}</small>
+        <h5 class="mb-1">{{ door.doorname }}</h5>
+        <small>{{ door.date }}</small>
       </div>
-      <p class="mb-1">{{ item.category }}</p>
+      <p class="mb-1">{{ door.category }}</p>
       <small>And some small print.</small>
     </a>
     {% endfor %}
 </div>
 
+{{ hoge }}
+<!-- viewsから飛んできたcontext.hogeを出力 -->
 
 {% endblock content %}

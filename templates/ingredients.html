@@ -6,11 +6,11 @@
 {% block content %}
 
 <div class="list-group">
-    {% for item in object_list %}
+    {% for ing_s in object_list %}
     <a class="list-group-item list-group-item-action active" aria-current="true">
       <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">{{ item.name }}</h5>
-        <small>{{ item.numbers }} {{ item.unit }}</small>
+        <h5 class="mb-1">{{ ing_s.name }}</h5>
+        <small>{{ ing_s.numbers }} {{ ing_s.unit }}</small>
       </div>
     </a>
     {% endfor %}

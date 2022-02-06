@@ -1,7 +1,9 @@
 from django.urls import path
-from .views import RefrigeratorList, Ingredients
+from .views import Createcompartment, RefrigeratorList, CompartmentList, Ingredients
 
 urlpatterns = [
-    path('list/', RefrigeratorList.as_view(), name = 'ref_door'),
+    path('', RefrigeratorList.as_view(), name = 'ref'),
+    path('cpmt_list/', CompartmentList.as_view(), name = 'cpmt'),
     path('ingre/<int:pk>/', Ingredients.as_view(), name='ingre'),
+    path('create_cpmt/', Createcompartment.as_view(), name = 'create_cpmt'),
 ]
