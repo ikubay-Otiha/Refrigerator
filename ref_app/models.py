@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class RefrigeratorModel(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True, null=True)
     date = models.DateField(auto_now_add=True)
     user = models.ManyToManyField(User)
     # compartment = CompartmentModel.refrigerator_set.all()
@@ -17,7 +17,7 @@ COMPARTMENT = (
 class CompartmentModel(models.Model):
     name = models.CharField(
         max_length = 100,
-        choices = COMPARTMENT
+        choices = COMPARTMENT,
     )
     refrigerator = models.ForeignKey(RefrigeratorModel, on_delete=models.PROTECT)
     date = models.DateField(auto_now_add=True)

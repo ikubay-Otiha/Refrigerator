@@ -1,17 +1,16 @@
-# from asyncio.windows_events import NULL
 from datetime import datetime
 from pipes import Template
 from re import template
 from sre_constants import SUCCESS
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.db import models
 from .models import RefrigeratorModel, CompartmentModel, IngredientsModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 import datetime
 # Create your views here.
-
 class RefrigeratorList(ListView):
     template_name = 'refrigerator.html'
     model = RefrigeratorModel
@@ -20,7 +19,7 @@ class RefrigeratorList(ListView):
         if current_user.is_superuser:
             return RefrigeratorModel.objects.all()
         else:
-            return RefrigeratorModel.objects.filter(author=current_user.id)
+            return RefrigeratorModel.objects.filter(id=current_user.id)
     # Added on2/13
 
 class RefrigeratorCreate(CreateView):
@@ -80,8 +79,8 @@ class Ingredients(ListView):
     today = datetime.datetime.today()
     # difference = expiration - today
     # if difference < 0:
-    #     alarm['expiration_alarm'] = (f"{IngredientsModel.objects.name}は賞味期限切れです。")
-    #     print(alarm)
+        # alarm['expiration_alarm'] = (f"{IngredientsModel.objects.name}は賞味期限切れです。")
+        # print(alarm)
 
 class IngredientsCreate(CreateView):
     template_name =''
@@ -99,4 +98,31 @@ class IngredientsDetele(DeleteView):
     model = IngredientsModel
     # success_url = reverse_lazy('ingre')
 
+def loginview(request):
+    if request.method == 'POST':
+        username_data = request.POST['username_data']
+        password_data = request.POST['password_data']
+        user = authenticate(request, username=username_data, password=password_data)
+        if user is not None:
+            login(request, user)
+            return redirect('ref')
+        else:
+            return redirect('login')
+    return render(request, 'login.html')
 
+def logoutview(request):
+    logout(request)
+    return redirect('login')
+
+def signupview(request):
+    print(request.POST.get('username_data'))
+    print(request.POST.get('password_data'))
+    if request.method == 'POST':
+        username_data = request.POST['username_data']
+        password_data = request.POST['password_data']
+        user = User.objects.create_user(username_data, '', password_data)
+        print('POST method')
+    else:
+        print(User.objects.all())
+        return render(request, 'signup.html', {})
+    return render(request, 'signup.html', {"you":request.POST.get('username_data')})

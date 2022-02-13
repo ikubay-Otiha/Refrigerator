@@ -11,10 +11,13 @@ urlpatterns = [
     path('create_cpmt/', CompartmentCreate.as_view(), name = 'create_cpmt'),
     path('update_cpmt/', CompartmentUpdate.as_view(), name = 'update_cpmt'),
     path('delete_cpmt/', CompartmentDelete.as_view(), name = 'delete_cpmt'),
-    
+
     path('ingre/<int:pk>', Ingredients.as_view(), name='ingre'),
     path('create_ingre/', IngredientsCreate.as_view(), name= 'create_ingre'),
 
+    path('login/', loginview, name='login'),
+    path('logout/', logoutview, name='logout'),
 
+    path('signup/', signupview, name='signup'),
 
 ]
