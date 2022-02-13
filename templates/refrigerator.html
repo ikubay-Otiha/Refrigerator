@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<a href="{% url 'create_ref' %}" class="btn btn-primary">冷蔵庫作成</a>
+<a href="{% url 'update_ref' %}" class="btn btn-primary">冷蔵庫更新</a>
+<a href="{% url 'delete_ref' %}" class="btn btn-primary">冷蔵庫削除</a>
+<div class="list-group">
+    {% for refrigerator in object_list %}
+    <a href="{% url 'cpmt' %}" class="list-group-item list-group-item-action active" aria-current="true">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">{{ refrigerator.name }}</h5>
+        <small>{{ refrigerator.date }}</small>
+      </div>
+      <p class="mb-1">{{ refrigerator.name }}</p>
+      <small>Something to describe.</small>
+    </a>
+    {% endfor %}
+</div>
+
+
+{% endblock content %}

@@ -1,8 +1,11 @@
 from django.contrib import admin
-from .models import RefrigeratorModel, CompartmentModel, IngredientsModel
+from .models import *
 
 # Register your models here.
 
 admin.site.register(RefrigeratorModel)
 admin.site.register(CompartmentModel)
 admin.site.register(IngredientsModel)
+admin.site.register(InfomationModel)
+admin.site.register(SalesInfoModel)
+admin.site.register(TodaysRecipeModel)
