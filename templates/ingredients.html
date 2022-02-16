@@ -3,14 +3,18 @@
 {% block header %}
 {% endblock header %}
 
-{% block content %}
 
+{% block content %}
+<a href="{% url 'create_ingre' %}" class="btn btn-primary">材料追加</a>
+<a href="{% url 'update_ingre' %}" class="btn btn-primary">材料更新</a>
+<a href="{% url 'delete_ingre' %}" class="btn btn-primary">材料削除</a>
 <div class="list-group">
     {% for ing_s in object_list %}
     <a class="list-group-item list-group-item-action active" aria-current="true">
       <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">{{ ing_s.name }}</h5>
-        <small>{{ ing_s.numbers }} {{ ing_s.unit }}</small>
+        <h5 class="mb-1">食材名：{{ ing_s.name }}</h5>
+        <small>数量：{{ ing_s.numbers }} {{ ing_s.get_unit_display }}</small>
+        <small>更新日時：{{ ing_s.date }}　更新者：{{ ing_s.user }}</small>
       </div>
     </a>
     {% endfor %}

@@ -5,7 +5,7 @@ from sre_constants import SUCCESS
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from django.db import models
+from django.db import models, IntegrityError
 from .models import RefrigeratorModel, CompartmentModel, IngredientsModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -25,7 +25,7 @@ class RefrigeratorList(ListView):
 class RefrigeratorCreate(CreateView):
     template_name = 'create_refrigerator.html'
     model = RefrigeratorModel
-    fields = ('name', 'user')
+    fields = ('name','user')
     success_url = reverse_lazy('ref')
 
 class RefrigeratorUpdate(UpdateView):
@@ -41,12 +41,20 @@ class RefrigeratorDelete(DeleteView):
 class CompartmentList(ListView):
     template_name = 'compartment.html' #←　ref_door.html
     model = CompartmentModel
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['now'] = datetime.datetime.now()
-        return context
-        # viewsで指定した変数をhtmlへ渡すことができる
-        # ex)現在時刻など、自分が付加しないデータを渡せる
+    # def get_context_data(self, **kwargs):
+        # context = super().get_context_data(**kwargs)
+        # context['now'] = datetime.datetime.now()
+        # return context
+    def get_queryset(self):
+        current_user = self.request.user
+        if current_user.is_superuser:
+            return CompartmentModel.objects.all()
+        else:
+            return CompartmentModel.objects.filter(user_id=current_user.id)
+    # Added on2/16
+    
+    # viewsで指定した変数をhtmlへ渡すことができる
+    # ex)現在時刻など、自分が付加しないデータを渡せる
     # def get_queryset(self):
     #     query_set = self.model.objects.filter(doorname = '肉冷凍室')
     #     return query_set
@@ -74,6 +82,13 @@ class CompartmentDelete(DeleteView):
 class Ingredients(ListView):
     template_name = 'ingredients.html' 
     model = IngredientsModel
+    def get_queryset(self):
+        current_user = self.request.user
+        if current_user.is_superuser:
+            return IngredientsModel.objects.all()
+        else:
+            return IngredientsModel.objects.filter(id=current_user.id)
+    # Added on2/14
     alarm = []
     expiration = IngredientsModel.expiration_date
     today = datetime.datetime.today()
@@ -93,7 +108,7 @@ class IngredientsUpdate(UpdateView):
     model = IngredientsModel
     # success_url = reverse_lazy('ingre')
 
-class IngredientsDetele(DeleteView):
+class IngredientsDelete(DeleteView):
     template_name = ''
     model = IngredientsModel
     # success_url = reverse_lazy('ingre')
@@ -120,9 +135,13 @@ def signupview(request):
     if request.method == 'POST':
         username_data = request.POST['username_data']
         password_data = request.POST['password_data']
-        user = User.objects.create_user(username_data, '', password_data)
-        print('POST method')
+        # user = User.objects.create_user(username_data, '', password_data)
+        try:
+            User.objects.create_user(username_data, '', password_data)
+        except IntegrityError:
+            return render(request, 'signup.html', {'error':'This user was already registered.'})
     else:
         print(User.objects.all())
         return render(request, 'signup.html', {})
-    return render(request, 'signup.html', {"you":request.POST.get('username_data')})
+    return redirect('login')
+    # return render(request, 'login.html', {"you":request.POST.get('username_data')})

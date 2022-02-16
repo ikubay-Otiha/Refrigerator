@@ -9,6 +9,8 @@ class RefrigeratorModel(models.Model):
     # compartment = CompartmentModel.refrigerator_set.all()
     def __str__(self):
         return self.name
+    # class Meta:
+        # verbose_name_plural =('冷蔵庫')
 
 COMPARTMENT = (
     ('Refrigerator','冷蔵室'),('Freezer','冷凍室'),('Vegetable','野菜室'),
@@ -19,6 +21,7 @@ class CompartmentModel(models.Model):
         max_length = 100,
         choices = COMPARTMENT,
     )
+    user = models.ForeignKey(User, null=True, on_delete=models.PROTECT)
     refrigerator = models.ForeignKey(RefrigeratorModel, on_delete=models.PROTECT)
     date = models.DateField(auto_now_add=True)
     def __str__(self):
@@ -30,14 +33,15 @@ UNIT = (
 )
 class IngredientsModel(models.Model):
     name = models.CharField(max_length=200)
+    user = models.ForeignKey(User, null=True, on_delete=models.PROTECT)
     compartment = models.ManyToManyField(CompartmentModel)
-    # example_door = models.ForeignKey(CompartmentModel) 
     # 一対多の場合:食材が多になる、キーは多につける。
     numbers = models.IntegerField()
     unit = models.CharField(
         max_length = 50,
         choices = UNIT
     )
+    date = models.DateField(auto_now_add=True)
     expiration_date = models.DateField()
     def __str__(self):
         return self.name
@@ -45,6 +49,7 @@ class IngredientsModel(models.Model):
 class InfomationModel(models.Model):
     title = models.CharField(max_length=50)
     text = models.TextField(max_length=1000)
+    date = models.DateField(auto_now_add=True)
     refrigerator = models.ForeignKey(RefrigeratorModel, on_delete=models.PROTECT)
     def __str__(self):
         return self.title
@@ -53,8 +58,10 @@ class InfomationModel(models.Model):
 
 class SalesInfoModel(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
+    date = models.DateField(auto_now_add=True)
     refrigerator = models.ForeignKey(RefrigeratorModel, on_delete=models.PROTECT)
 
 class TodaysRecipeModel(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
+    date = models.DateField(auto_now_add=True)
     ingredients = models.ForeignKey(IngredientsModel, on_delete=models.PROTECT)

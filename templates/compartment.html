@@ -8,7 +8,7 @@
     {% for cpmt in object_list %}
     <a href="{% url 'ingre' cpmt.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
       <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">{{ cpmt.name }}</h5>
+        <h5 class="mb-1">{{ cpmt.get_name_display }}</h5>
         <small>{{ cpmt.date }}</small>
       </div>
       <p class="mb-1">{{ cpmt.category }}</p>

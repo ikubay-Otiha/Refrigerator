@@ -14,6 +14,8 @@ urlpatterns = [
 
     path('ingre/<int:pk>', Ingredients.as_view(), name='ingre'),
     path('create_ingre/', IngredientsCreate.as_view(), name= 'create_ingre'),
+    path('update_ingre/', IngredientsUpdate.as_view(), name= 'update_ingre'),
+    path('delete_ingre/', IngredientsDelete.as_view(), name= 'delete_ingre'),
 
     path('login/', loginview, name='login'),
     path('logout/', logoutview, name='logout'),
