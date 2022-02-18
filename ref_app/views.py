@@ -89,13 +89,20 @@ class Ingredients(ListView):
         else:
             return IngredientsModel.objects.filter(id=current_user.id)
     # Added on2/14
-    alarm = []
-    expiration = IngredientsModel.expiration_date
-    today = datetime.datetime.today()
-    # difference = expiration - today
-    # if difference < 0:
-        # alarm['expiration_alarm'] = (f"{IngredientsModel.objects.name}は賞味期限切れです。")
-        # print(alarm)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        over_expiration_items = list()
+        # context['object_list'] はget_querysetの結果得られた IngredientsModelのlist
+        for ingredient in context['object_list']:
+            expiration = ingredient.expiration_date
+            today = datetime.date.today()
+            difference = expiration - today
+            over_expiration = difference < datetime.timedelta(0)
+            if over_expiration:
+                over_expiration_items.append(ingredient)
+                ingredient.is_over_expiration = True
+        context['over_expiration_items'] = over_expiration_items
+        return context
 
 class IngredientsCreate(CreateView):
     template_name =''
