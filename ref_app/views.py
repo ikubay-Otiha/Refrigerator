@@ -19,7 +19,7 @@ class RefrigeratorList(ListView):
         if current_user.is_superuser:
             return RefrigeratorModel.objects.all()
         else:
-            return RefrigeratorModel.objects.filter(id=current_user.id)
+            return RefrigeratorModel.objects.filter(user=current_user.id)
     # Added on2/13
 
 class RefrigeratorCreate(CreateView):
@@ -30,10 +30,11 @@ class RefrigeratorCreate(CreateView):
     def get_context_data(self, **kwargs):
         current_user = self.request.user
         context = super().get_context_data(**kwargs)
+        context['hoge'] = "fuga"
         print(context['form'].fields['user'])
         print(context['form'].fields['name'])
         print(context['form'].fields['name'])
-        # context['form'].fields['username'].queryset = User.objects.filter(username=current_user)
+        context['form'].fields['user'].queryset = User.objects.filter(id=current_user.id)
         return context
     # UrlsのCompartmentCreate.as_view()のメソッドが実行されると、
     # get_context_data(self, **kwargs):も続いて実行される
