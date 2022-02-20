@@ -26,7 +26,17 @@ class RefrigeratorCreate(CreateView):
     template_name = 'create_refrigerator.html'
     model = RefrigeratorModel
     fields = ('name','user')
-    success_url = reverse_lazy('ref')
+    success_url = reverse_lazy('ref')   
+    def get_context_data(self, **kwargs):
+        current_user = self.request.user
+        context = super().get_context_data(**kwargs)
+        print(context['form'].fields['user'])
+        print(context['form'].fields['name'])
+        print(context['form'].fields['name'])
+        # context['form'].fields['username'].queryset = User.objects.filter(username=current_user)
+        return context
+    # UrlsのCompartmentCreate.as_view()のメソッドが実行されると、
+    # get_context_data(self, **kwargs):も続いて実行される
 
 class RefrigeratorUpdate(UpdateView):
     template_name = ''
