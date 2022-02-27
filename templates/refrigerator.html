@@ -6,7 +6,7 @@
 <a href="{% url 'delete_ref' %}" class="btn btn-primary">冷蔵庫削除</a>
 <div class="list-group">
     {% for refrigerator in object_list %}
-    <a href="{% url 'cpmt' %}" class="list-group-item list-group-item-action active" aria-current="true">
+    <a href="{% url 'cpmt' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
       <div class="d-flex w-100 justify-content-between">
         <h5 class="mb-1">{{ refrigerator.name }}</h5>
         <small>{{ refrigerator.date }}</small>

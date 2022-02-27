@@ -12,16 +12,15 @@ class RefrigeratorModel(models.Model):
     # class Meta:
         # verbose_name_plural =('冷蔵庫')
 
-COMPARTMENT = (
+COMPARTMENT_TYPE = (
     ('Refrigerator','冷蔵室'),('Freezer','冷凍室'),('Vegetable','野菜室'),
     ('Chilled','チルド室'),('Icebox','アイスボックス')
 )
 class CompartmentModel(models.Model):
     name = models.CharField(
         max_length = 100,
-        choices = COMPARTMENT,
+        choices = COMPARTMENT_TYPE,
     )
-    user = models.ForeignKey(User, null=True, on_delete=models.PROTECT)
     refrigerator = models.ForeignKey(RefrigeratorModel, on_delete=models.PROTECT)
     date = models.DateField(auto_now_add=True)
     def __str__(self):
