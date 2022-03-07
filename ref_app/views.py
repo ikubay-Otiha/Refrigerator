@@ -42,9 +42,12 @@ class RefrigeratorCreate(CreateView):
     def get_context_data(self, **kwargs):
         current_user = self.request.user
         context = super().get_context_data(**kwargs)
-        # 親クラス（CreateView）のmethodを実行している
-        context['form'].fields['user'].queryset = User.objects.filter(id=current_user.id)
-        return context
+        # ⬆️親クラス（CreateView）のmethodを実行している
+        if current_user.is_superuser:
+            return context
+        else:
+            context['form'].fields['user'].queryset = User.objects.filter(id=current_user.id)
+            return context
     # UrlsのCompartmentCreate.as_view()のメソッドが実行されると、
     # get_context_data(self, **kwargs):も続いて実行される
 
@@ -55,17 +58,17 @@ class RefrigeratorUpdate(UpdateView):
     success_url = reverse_lazy('ref')
     def get_context_data(self, **kwargs):
         current_user = self.request.user
-        # if current_user.is_superuser:
-            # return object.all()
-        # else:    
-            # context = super().get_context_data(**kwargs)
-            # context['form'].fields['user'].queryset = User.objects.filter(id=current_user.id)
-            # return context
-        #　これだとupdateでsuperuser全部選べない。これで良い？
+        context = super().get_context_data(**kwargs)
+        if current_user.is_superuser:
+            return context
+        else:    
+            context['form'].fields['user'].queryset = User.objects.filter(id=current_user.id)
+            return context
 class RefrigeratorDelete(DeleteView):
     template_name = 'delete_refrigerator.html'
     model = RefrigeratorModel
     success_url = reverse_lazy('ref')
+    # class-based版のredirect()と考える。リダイレクト先のURLを指定
 
 class CompartmentList(ListView):
     template_name = 'compartment.html' #←　ref_door.html
@@ -82,21 +85,21 @@ class CompartmentList(ListView):
         # CompartmentModel.objects.filter(refrigerator_id=current_user.id, ).order_by('date').reverse()
   
     def get_cotext_data(self, **kwargs):
+        current_user = self.request.user
+        current_user.id = self.request.user.id
+        queryset = User.objects.filter(id=current_user.id)
+        ref_owner = queryset[0].id
         context = super().get_context_data(**kwargs)
         cpmt_list = CompartmentModel.objects.filter(id=self.kwargs['pk'])
         context['form'] = cpmt_list
+        context["ref_pk"] = ref_owner
         return context
 
     # アクセスしてきたユーザがその冷蔵庫の所有者か調べる(そうだったら処理継続、違ったら弾く)
     # 仕込んだpkをもとに表示するCompartmentを絞る
     # Added on2/23 CompartmentModel.refrigetaor_idが冷蔵庫所有者をしめす。
 
-    # def get_context_data(self, **kwargs):
-        # owners = self.object.refrigerator.user.all()
-        # print(owners)
-        # context = super().get_context_data(**kwargs)
-        # context['object_list'].fields['compartment'].queryset = RefrigeratorModel.objects.filter(id=CompartmentModel().id)
-    # viewsで指定した変数をhtmlへ渡すことができる
+    # get_context_data : viewsで指定した変数をhtmlへ渡すことができる
     # ex)現在時刻など、自分が付加しないデータを渡せる
     # def get_queryset(self):
     #     query_set = self.model.objects.filter(doorname = '肉冷凍室')
@@ -109,32 +112,24 @@ class CompartmentCreate(CreateView):
     template_name = 'create_compartment.html' #←　create_door.html
     model = CompartmentModel
     fields = ('name', 'refrigerator')
-    success_url = reverse_lazy('cpmt')
-    # def get_context_data(self, **kwargs):
-        # current_user = self.request.user 
-        # context = super().get_context_data(**kwargs)
-        # context['form'].fields['user'].queryset = User.objects.filter(id=current_user.id)
-        # context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(refrigerator_id=id)
-        # return context
-    # def narrow_down_cpmt(request, pk)
-        # return render(request, '', {})
-    # def get_queryset(self):
-    #     #current_user = self.request.user
-    #     owners = self.object.refrigerator.user.all()
-    #     if self.request.user in owners:
-    #         return RefrigeratorModel.objects.
-    #     else:
+    def get_queryset(self):
+        # ref_pk = RefrigeratorModel.objects.filter(id=self.kwargs["pk"])
+        return RefrigeratorModel.objects.all()
+    def get_success_url(self):
+        return reverse('cpmt', self.object.refrigerator.id)
+            
 class CompartmentUpdate(UpdateView):
-    template_name = ''
+    template_name = 'update_compartment.html'
     model = CompartmentModel
     fields = ('name', 'refrigerator')
-    success_url = reverse_lazy('cpmt')
+    def get_success_url(self):
+        return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
 
 class CompartmentDelete(DeleteView):
-    template_name = ''
+    template_name = 'delete_compartment.html'
     model = CompartmentModel
-    success_url = reverse_lazy('cpmt')
-    # class-based版のredirect()と考える。リダイレクト先のURLを指定
+    def get_success_url(self):
+        return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
 
 class Ingredients(ListView):
     template_name = 'ingredients.html' 

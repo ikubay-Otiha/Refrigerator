@@ -1,11 +1,10 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 <h3 class="display-9">冷蔵・冷凍室作成</h1>
 <form action='' method='POST'>{% csrf_token %}
     {{form.as_p}}
     <input type="submit" value="作成する">
-    <a href="{% url 'cpmt' %}" class="btn btn-primary">戻る</a>
+    <a href="{% url 'cpmt' user.pk %}" class="btn btn-primary">戻る</a>
 </form>
 {% endblock content %}

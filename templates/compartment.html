@@ -1,9 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<a href="{% url 'create_cpmt' %}" class="btn btn-primary">冷蔵室作成</a>
-<a href="{% url 'update_cpmt' %}" class="btn btn-primary">冷蔵室更新</a>
-<a href="{% url 'delete_cpmt' %}" class="btn btn-primary">冷蔵室削除</a>
+<a href="{% url 'create_cpmt' ref_pk %}" class="btn btn-primary">冷蔵室作成</a>
+
 <div class="list-group">
     {% for cpmt in object_list %}
     <a href="{% url 'ingre' %}" class="list-group-item list-group-item-action active" aria-current="true">
@@ -14,12 +13,14 @@
       <p class="mb-1">{{ cpmt.category }}</p>
       <small>Something to describe.</small>
     </a>
-    {% endfor %}
 </div>
-{{ form.as_p }}
-{{ expiration_alarm }}
+    <a href="{% url 'update_cpmt' cpmt.pk %}" class="btn btn-info">冷蔵室更新</a>
+    <a href="{% url 'delete_cpmt' cpmt.pk %}" class="btn btn-danger">冷蔵室削除</a>
+    <p></p>
+    {% endfor %}
 
-{{ now }}
+{{ form.as_p }}
+
 <!-- viewsから飛んできたcontext.hogeを出力 -->
 
 {% endblock content %}
