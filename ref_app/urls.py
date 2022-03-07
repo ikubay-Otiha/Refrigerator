@@ -6,8 +6,8 @@ urlpatterns = [
 
     path('ref/', RefrigeratorList.as_view(), name = 'ref'),
     path('create_ref/', RefrigeratorCreate.as_view(), name = 'create_ref'),
-    path('delete_ref/', RefrigeratorDelete.as_view(), name= 'delete_ref'),
-    path('update_ref/', RefrigeratorUpdate.as_view(), name= 'update_ref'),
+    path('delete_ref/<int:pk>', RefrigeratorDelete.as_view(), name= 'delete_ref'),
+    path('update_ref/<int:pk>', RefrigeratorUpdate.as_view(), name= 'update_ref'),
 
     path('cpmt_list/<int:pk>/', CompartmentList.as_view(), name = 'cpmt'),
     path('create_cpmt/', CompartmentCreate.as_view(), name = 'create_cpmt'),

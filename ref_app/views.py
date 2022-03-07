@@ -3,6 +3,7 @@ from http.client import REQUEST_URI_TOO_LONG
 from pipes import Template
 from re import template
 from sre_constants import SUCCESS
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy, reverse
@@ -24,13 +25,13 @@ class HomeList(ListView):
 class RefrigeratorList(ListView):
     template_name = 'refrigerator.html'
     model = RefrigeratorModel
-    reverse = ()
     def get_queryset(self):
         current_user = self.request.user
         if current_user.is_superuser:
             return RefrigeratorModel.objects.all().order_by('date').reverse
         else:
             return RefrigeratorModel.objects.filter(user=current_user.id).order_by('date').reverse
+        return HttpResponseForbidden
     # Added on2/13
 
 class RefrigeratorCreate(CreateView):
@@ -48,21 +49,27 @@ class RefrigeratorCreate(CreateView):
     # get_context_data(self, **kwargs):も続いて実行される
 
 class RefrigeratorUpdate(UpdateView):
-    template_name = ''
+    template_name = 'update_refrigerator.html'
     model = RefrigeratorModel
     fields = ('name', 'user')
-
+    success_url = reverse_lazy('ref')
+    def get_context_data(self, **kwargs):
+        current_user = self.request.user
+        # if current_user.is_superuser:
+            # return object.all()
+        # else:    
+            # context = super().get_context_data(**kwargs)
+            # context['form'].fields['user'].queryset = User.objects.filter(id=current_user.id)
+            # return context
+        #　これだとupdateでsuperuser全部選べない。これで良い？
 class RefrigeratorDelete(DeleteView):
-    template_name = ''
+    template_name = 'delete_refrigerator.html'
     model = RefrigeratorModel
     success_url = reverse_lazy('ref')
 
 class CompartmentList(ListView):
     template_name = 'compartment.html' #←　ref_door.html
     model = CompartmentModel
-    get_pk = CompartmentModel.objects.get(pk=8)
-    get_user = CompartmentModel.objects.filter(refrigerator__user='7')
-    get_user2 = CompartmentModel.objects.filter(refrigerator__user__id='4')
     def get_queryset(self):
         current_user = self.request.user
         current_user.id = self.request.user.id
