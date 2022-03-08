@@ -157,20 +157,29 @@ class Ingredients(ListView):
         return context
 
 class IngredientsCreate(CreateView):
-    template_name =''
+    template_name ='create_ingredients.html'
+    model = IngredientsModel
+    fields =('name', 'compartment', 'numbers', 'unit', 'expiration_date')
+    def get_queryset(self):
+        # ref_pk = RefrigeratorModel.objects.filter(id=self.kwargs["pk"])
+        return IngredientsModel.objects.all()
+    # success_url = reverse_lazy('ingre')
+    def get_success_url(self):
+        return reverse('ingre', kwargs={'pk':self.object.ingredients_id})
+
+class IngredientsUpdate(UpdateView):
+    template_name = 'update_ingredients.html'
     model = IngredientsModel
     fields =('name', 'compartment', 'numbers', 'unit', 'expiration_date')
     # success_url = reverse_lazy('ingre')
+    def get_success_url(self):
+        return reverse('ingre', kwargs={'pk':self.object.ingredients_id})
 
-class IngredientsUpdate(UpdateView):
-    template_name = ''
-    model = IngredientsModel
-    # success_url = reverse_lazy('ingre')
 
 class IngredientsDelete(DeleteView):
-    template_name = ''
+    template_name = 'delete_ingredients.html'
     model = IngredientsModel
-    # success_url = reverse_lazy('ingre')
+    success_url = reverse_lazy('ingre')
 
 def loginview(request):
     if request.method == 'POST':
