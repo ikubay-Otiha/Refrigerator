@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3 class="display-9">材料作成</h1>
+<form action='' method='POST'>{% csrf_token %}
+    {{form.as_p}} 
+    <!-- form = viewsにあるRefrigaratorCreateのformと同一 -->
+    <input type="submit" value="作成する">
+    <a href="{% url 'ingre' object.pk %}" class="btn btn-primary">戻る</a>
+</form>
+
+{% endblock content %}
