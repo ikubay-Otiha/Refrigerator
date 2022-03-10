@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<a href="{% url 'create_cpmt' %}" class="btn btn-primary">冷蔵室作成</a>
+<a href="{% url 'create_cpmt' user.pk %}" class="btn btn-primary">冷蔵室作成</a>
 
 <div class="list-group">
     {% for cpmt in object_list %}

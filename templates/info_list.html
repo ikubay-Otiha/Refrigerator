@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<a href="{% url 'create_info' %}" class="btn btn-primary">作成</a>
+
+<div class="list-group">
+    {% for info in object_list %}
+    <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">{{ info.title }}</h5>
+        <small>{{ info.date }}</small>
+      </div>
+      <!-- <p class="mb-1">{{ refrigerator.name }}</p> -->
+      <small>{{ info.text }}</small>
+    </a>
+</div>
+    <a href="{% url 'update_info' info.pk %}" class="btn btn-info">更新</a>
+    <a href="{% url 'delete_info' info.pk %}" class="btn btn-danger">削除</a>
+    <p></p>
+    {% endfor %}
+
+{% endblock content %}

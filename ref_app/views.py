@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy, reverse
 from django.db import models, IntegrityError
-from .models import RefrigeratorModel, CompartmentModel, IngredientsModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
+from .models import RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 import datetime
@@ -112,11 +112,11 @@ class CompartmentCreate(CreateView):
     template_name = 'create_compartment.html' #←　create_door.html
     model = CompartmentModel
     fields = ('name', 'refrigerator')
-    def get_queryset(self):
-        # ref_pk = RefrigeratorModel.objects.filter(id=self.kwargs["pk"])
-        return RefrigeratorModel.objects.all()
+    # def get(self, *args, **kwargs):
+        # self.object = self.get_object()
+        # return self.object
     def get_success_url(self):
-        return reverse('cpmt', self.object.refrigerator.id)
+        return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
             
 class CompartmentUpdate(UpdateView):
     template_name = 'update_compartment.html'
@@ -181,6 +181,34 @@ class IngredientsDelete(DeleteView):
     model = IngredientsModel
     success_url = reverse_lazy('ingre')
 
+class InfomationList(ListView):
+    template_name = 'info_list.html'
+    model = InfomationModel
+    def get_queryset(self):
+        current_user = self.request.user
+        if current_user.is_superuser:
+            return InfomationModel.objects.all().order_by('date').reverse
+        else:
+            return InfomationModel.objects.filter(user=current_user.id).order_by('date').reverse
+        return HttpResponseForbidden
+
+class InfomationCreate(CreateView):
+    template_name = 'create_info.html'
+    model = InfomationModel
+    fields = ('title', 'text', 'refrigerator')
+    success_url = reverse_lazy('info')   
+
+class InfomationUpdate(UpdateView):
+    template_name = 'update_info.html'
+    model = InfomationModel
+    fields = ('title', 'text', 'refrigerator')
+    success_url = reverse_lazy('info')
+
+class InfomationDelete(DeleteView):
+    template_name = 'delete_info.html'
+    model = InfomationModel
+    success_url = reverse_lazy('info')
+
 def loginview(request):
     if request.method == 'POST':
         username_data = request.POST['username_data']
@@ -221,3 +249,9 @@ def signupview(request):
         return render(request, 'signup.html', {})
     return redirect('login')
     # return render(request, 'login.html', {"you":request.POST.get('username_data')})
+
+
+# from path.to.the.model import MyModel # 事前にモデルがimportされていない場合
+# MyModel._meta.get_fields()
+
+# ex. User._meta.get_fields()

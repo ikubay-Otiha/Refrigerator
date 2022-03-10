@@ -19,6 +19,11 @@ urlpatterns = [
     path('update_ingre/<int:pk>/', IngredientsUpdate.as_view(), name= 'update_ingre'),
     path('delete_ingre/<int:pk>/', IngredientsDelete.as_view(), name= 'delete_ingre'),
 
+    path('info/', InfomationList.as_view(), name= 'info'),
+    path('create_info/', InfomationCreate.as_view(), name= 'create_info'),
+    path('update_info/<int:pk>/', InfomationUpdate.as_view(), name= 'update_info'),
+    path('delete_info/<int:pk>/', InfomationDelete.as_view(), name= 'delete_info'),
+
     path('login/', loginview, name='login'),
     path('logout/', logoutview, name='logout'),
 

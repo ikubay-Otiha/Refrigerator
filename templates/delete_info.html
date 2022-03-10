@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3 class="display-9">{{ title }}を削除しても良いですか？</h1>
+<h1>{{info.title}}</h1>
+<form action='' method='POST'>{% csrf_token %}
+    <input type="submit" value="削除する">
+    <a href="{% url 'info' %}" class="btn btn-primary">戻る</a>
+</form>
+
+{% endblock content %}
