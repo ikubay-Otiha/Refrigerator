@@ -6,7 +6,9 @@
     {{form.as_p}} 
     <!-- form = viewsにあるRefrigaratorCreateのformと同一 -->
     <input type="submit" value="作成する">
-    <a href="{% url 'ingre' object.pk %}" class="btn btn-primary">戻る</a>
+    {% comment 'temporary evacuation' %}
+    <!-- <a href="{% url 'ingre' object.pk %}" class="btn btn-primary">戻る</a> -->
+    {% endcomment%}
 </form>
 
 {% endblock content %}

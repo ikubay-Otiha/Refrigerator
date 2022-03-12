@@ -64,6 +64,8 @@ class RefrigeratorUpdate(UpdateView):
         else:    
             context['form'].fields['user'].queryset = User.objects.filter(id=current_user.id)
             return context
+        return HttpResponseForbidden
+        
 class RefrigeratorDelete(DeleteView):
     template_name = 'delete_refrigerator.html'
     model = RefrigeratorModel
@@ -115,6 +117,15 @@ class CompartmentCreate(CreateView):
     # def get(self, *args, **kwargs):
         # self.object = self.get_object()
         # return self.object
+    def get_context_data(self, **kwargs):
+        current_user = self.request.user
+        context = super().get_context_data(**kwargs)
+        if current_user.is_superuser:
+            return context
+        else:    
+            set_ref_owner = User.objects.filter(id=current_user.id)
+            context['form'].fields['refrigerator'].queryset = User.objects.filter(id=current_user.id)
+            return context
     def get_success_url(self):
         return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
             
@@ -122,6 +133,14 @@ class CompartmentUpdate(UpdateView):
     template_name = 'update_compartment.html'
     model = CompartmentModel
     fields = ('name', 'refrigerator')
+    def get_context_data(self, **kwargs):
+        current_user = self.request.user
+        context = super().get_context_data(**kwargs)
+        if current_user.is_superuser:
+            return context
+        else:    
+            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(id=current_user.id)
+            return context
     def get_success_url(self):
         return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
 

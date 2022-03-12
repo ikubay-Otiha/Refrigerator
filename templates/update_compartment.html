@@ -5,7 +5,8 @@
 <form action='' method='POST'>{% csrf_token %}
 {{form.as_p}} 
     <input type="submit" value="更新する">
-    <a href="{% url 'cpmt' object.refrigerator.pk %}" class="btn btn-primary">戻る</a>
+    <a href="{% url 'ref' %}" class="btn btn-primary">戻る</a>
+    <!-- 本当はこうしたい→<a href="{% url 'cpmt' object.refrigerator.pk %}" class="btn btn-primary">戻る</a> -->
 </form>
 
 {% endblock content %}
