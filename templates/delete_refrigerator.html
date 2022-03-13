@@ -2,7 +2,7 @@
 
 {% block content %}
 <h3 class="display-9">冷蔵庫削除</h1>
-<h1>{{refrigerator.name}}</h1>
+<h5>{{object.name}}を削除しても良いですか？</h5>
 <form action='' method='POST'>{% csrf_token %}
     <input type="submit" value="削除する">
     <a href="{% url 'ref' %}" class="btn btn-primary">戻る</a>
