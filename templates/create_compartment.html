@@ -5,6 +5,7 @@
 <form action='' method='POST'>{% csrf_token %}
     {{form.as_p}}
     <input type="submit" value="作成する">
-    <a href="{% url 'ref' %}" class="btn btn-primary">戻る</a>
+    <a href="{% url 'cpmt' refrigerator_pk=refrigerator_pk%}" class="btn btn-primary">戻る</a>
+    <!-- 左辺がurls.pyのPK、右辺がget_context_dataで渡ってきたPK -->
 </form>
 {% endblock content %}

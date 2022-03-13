@@ -83,7 +83,7 @@ class CompartmentList(ListView):
         if current_user.is_superuser:
             return CompartmentModel.objects.all().order_by('date').reverse()
         elif self.request.user.id == ref_owner:
-            return CompartmentModel.objects.filter(refrigerator_id=self.kwargs['pk']).order_by('date').reverse()
+            return CompartmentModel.objects.filter(refrigerator_id=self.kwargs['refrigerator_pk']).order_by('date').reverse()
         # CompartmentModel.objects.filter(refrigerator_id=current_user.id, ).order_by('date').reverse()
   
     def get_cotext_data(self, **kwargs):
@@ -95,6 +95,7 @@ class CompartmentList(ListView):
         cpmt_list = CompartmentModel.objects.filter(id=self.kwargs['pk'])
         context['form'] = cpmt_list
         context["ref_pk"] = ref_owner
+        context['refrigerator_pk'] = self.kwargs['refrigerator_pk']
         return context
 
     # アクセスしてきたユーザがその冷蔵庫の所有者か調べる(そうだったら処理継続、違ったら弾く)
@@ -123,8 +124,12 @@ class CompartmentCreate(CreateView):
         if current_user.is_superuser:
             return context
         else:    
-            set_ref_owner = User.objects.filter(id=current_user.id)
-            context['form'].fields['refrigerator'].queryset = User.objects.filter(id=current_user.id)
+            # list() = 
+            # for ref_owner in :
+            # set_ref_owner = User.objects.filter(id=current_user.id)
+            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(id=current_user.id)
+            context['refrigerator_pk'] = self.kwargs['refrigerator_pk']
+            #右辺でurlsのrefrigeratorpkにアクセスしている。その結果を左辺のcontextに渡している。
             return context
     def get_success_url(self):
         return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
@@ -155,10 +160,16 @@ class Ingredients(ListView):
     model = IngredientsModel
     def get_queryset(self):
         current_user = self.request.user
+        owner = User.objects.filter(id=current_user.id)
+        owner_id = owner[0].id
+        ing_owner = IngredientsModel.compartment
         if current_user.is_superuser:
             return IngredientsModel.objects.all().order_by('date').reverse()
-        else:
-            return IngredientsModel.objects.filter(id=current_user.id)
+        # else:
+            # return IngredientsModel.objects.filter(id=current_user.id)
+        elif self.request.user.id == owner_id:
+            return IngredientsModel.objects.filter(id=self.kwargs['pk']).order_by('date').reverse()
+        return HttpResponseForbidden
     # Added on2/14
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -184,7 +195,7 @@ class IngredientsCreate(CreateView):
         return IngredientsModel.objects.all()
     # success_url = reverse_lazy('ingre')
     def get_success_url(self):
-        return reverse('ingre', kwargs={'pk':self.object.ingredients_id})
+        return reverse('ingre', kwargs={'pk':self.object.pk})
 
 class IngredientsUpdate(UpdateView):
     template_name = 'update_ingredients.html'
@@ -192,7 +203,7 @@ class IngredientsUpdate(UpdateView):
     fields =('name', 'compartment', 'numbers', 'unit', 'expiration_date')
     # success_url = reverse_lazy('ingre')
     def get_success_url(self):
-        return reverse('ingre', kwargs={'pk':self.object.ingredients_id})
+        return reverse('ingre', kwargs={'pk':self.object.pk})
 
 
 class IngredientsDelete(DeleteView):
