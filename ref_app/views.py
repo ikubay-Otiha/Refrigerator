@@ -3,6 +3,7 @@ from http.client import REQUEST_URI_TOO_LONG
 from pipes import Template
 from re import template
 from sre_constants import SUCCESS
+from weakref import ref
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
@@ -124,7 +125,7 @@ class CompartmentCreate(CreateView):
             return context
         else:    
             set_ref_owner = User.objects.filter(id=current_user.id)
-            context['form'].fields['refrigerator'].queryset = User.objects.filter(id=current_user.id)
+            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(id=current_user.id)
             return context
     def get_success_url(self):
         return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
@@ -179,10 +180,44 @@ class IngredientsCreate(CreateView):
     template_name ='create_ingredients.html'
     model = IngredientsModel
     fields =('name', 'compartment', 'numbers', 'unit', 'expiration_date')
+    
     def get_queryset(self):
+        current_user = self.request.user
+        current_user.id = self.request.user.id
+        queryset = User.objects.filter(id=current_user.id)
+        cpmt_owner = queryset[0].id 
         # ref_pk = RefrigeratorModel.objects.filter(id=self.kwargs["pk"])
-        return IngredientsModel.objects.all()
-    # success_url = reverse_lazy('ingre')
+        if current_user.is_superuser:
+            return IngredientsModel.objects.all()
+        elif self.request.user.id == cpmt_owner:
+            return IngredientsModel.objects.filter(refrigerator_id=self.kwargs['pk'])
+        return HttpResponseForbidden
+
+    def get_context_data(self, **kwargs):
+        current_user = self.request.user
+        context = super().get_context_data(**kwargs)
+        itemlist = list()
+        if current_user.is_superuser:
+            return context
+        else:    
+            ref_owner = RefrigeratorModel.objects.filter(user=current_user.id)
+            for i in ref_owner:
+                itemlist.append(i)
+            context['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=current_user.id)
+            context['itemlist'] = ref_owner
+            return context
+
+    def get_queryset(self):
+        current_user = self.request.user
+        current_user.id = self.request.user.id
+        queryset6 = User.objects.filter(id=current_user.id)
+        ref_owner = queryset6[0].id   
+        if current_user.is_superuser:
+            return CompartmentModel.objects.all().order_by('date').reverse()
+        elif self.request.user.id == ref_owner:
+            return CompartmentModel.objects.filter(refrigerator_id=self.kwargs['pk']).order_by('date').reverse()
+
+        
     def get_success_url(self):
         return reverse('ingre', kwargs={'pk':self.object.ingredients_id})
 
@@ -208,7 +243,7 @@ class InfomationList(ListView):
         if current_user.is_superuser:
             return InfomationModel.objects.all().order_by('date').reverse
         else:
-            return InfomationModel.objects.filter(user=current_user.id).order_by('date').reverse
+            return InfomationModel.objects.filter(id=current_user.id).order_by('date').reverse
         return HttpResponseForbidden
 
 class InfomationCreate(CreateView):
