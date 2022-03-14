@@ -21,7 +21,7 @@ class HomeList(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['name'] = self.request.user
-        
+        context['filter'] = User.objects.all()
         return context
 class RefrigeratorList(ListView):
     template_name = 'refrigerator.html'
@@ -33,6 +33,19 @@ class RefrigeratorList(ListView):
         else:
             return RefrigeratorModel.objects.filter(user=current_user.id).order_by('date').reverse
         return HttpResponseForbidden
+    def get_context_data(self, **kwargs):
+        current_user = self.request.user
+        context = super().get_context_data(**kwargs)
+        if current_user.is_superuser:
+            context['filter_date'] = RefrigeratorModel.objects.all().order_by('date')
+            context['filter_name'] = RefrigeratorModel.objects.all().order_by('name').reverse
+            return context
+        else:
+            context['filter_date'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('date')
+            context['filter_name'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('name').reverse
+            return context
+
+    
     # Added on2/13
 
 class RefrigeratorCreate(CreateView):
