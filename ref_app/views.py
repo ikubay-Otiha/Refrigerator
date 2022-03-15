@@ -5,11 +5,11 @@ from re import template
 from sre_constants import SUCCESS
 from weakref import ref
 from django.http import HttpResponse, HttpResponseForbidden
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy, reverse
 from django.db import models, IntegrityError
-from .models import RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
+from .models import IngredientsHistoryModel, RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 import datetime
@@ -219,17 +219,6 @@ class IngredientsCreate(CreateView):
             context['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=current_user.id)
             context['itemlist'] = ref_owner
             return context
-
-    def get_queryset(self):
-        current_user = self.request.user
-        current_user.id = self.request.user.id
-        queryset6 = User.objects.filter(id=current_user.id)
-        ref_owner = queryset6[0].id   
-        if current_user.is_superuser:
-            return CompartmentModel.objects.all().order_by('date').reverse()
-        elif self.request.user.id == ref_owner:
-            return CompartmentModel.objects.filter(refrigerator_id=self.kwargs['pk']).order_by('date').reverse()
-
         
     def get_success_url(self):
         return reverse('ingre', kwargs={'pk':self.object.ingredients_id})
@@ -247,6 +236,31 @@ class IngredientsDelete(DeleteView):
     template_name = 'delete_ingredients.html'
     model = IngredientsModel
     success_url = reverse_lazy('ingre')
+
+# Ingredientsの更新履歴保存View
+
+class IngredientsHistoryCreate(CreateView):
+    template_name = 'create_ingre_history.html'
+    model = IngredientsHistoryModel
+    fields = ('update_user', 'ingre_name', 'ingre_numbers', 'ingre_unit')
+    def form_valid(self, form):
+        pk = self.kwargs.get('pk')
+        ingredients = get_object_or_404(IngredientsModel, pk=pk)
+        update_date = int(self.request.POST.get('update_date'))
+        update_user = self.request.user
+        ingre_name = self.request.POST.get('ingre_name')
+        ingre_numbers = int(self.request.POST.get('ingre_numbers'))
+        ingre_unit = self.request.POST.get('ingre_unit')
+
+        history = form.save(commit=False)
+        history.ingre = ingredients
+        history.date = update_date
+        history.user = update_user
+        history.ingre_name = ingre_name
+        history.ingre_num = ingre_numbers
+        history.ingre_unit = ingre_unit
+        history.save()
+        return redirect('ingre', pk=pk)
 
 class InfomationList(ListView):
     template_name = 'info_list.html'
@@ -276,6 +290,7 @@ class InfomationDelete(DeleteView):
     model = InfomationModel
     success_url = reverse_lazy('info')
 
+# login,logout,signupview
 def loginview(request):
     if request.method == 'POST':
         username_data = request.POST['username_data']
