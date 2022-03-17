@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ object.name }} 詳細画面</h1>
+<div class="alert alert-default">
+    {{ cpmt.get_name_display }}
+</div>
+{% for cpmt in child_cpmt %}
+    <a href="{% url 'ingre' cpmt.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">{{ cpmt.get_name_display }}</h5>
+        <small>{{ cpmt.date }}</small>
+      </div>
+      <p class="mb-1">{{ cpmt.category }}</p>
+      <small>Something to describe.</small>
+    </a>
+</div>
+<a href="{% url 'update_cpmt' cpmt.pk %}" class="btn btn-info">冷蔵室更新</a>
+<a href="{% url 'delete_cpmt' cpmt.pk %}" class="btn btn-danger">冷蔵室削除</a>
+{% endfor %}
+
+{% endblock content %}

@@ -48,6 +48,17 @@ class RefrigeratorList(ListView):
     
     # Added on2/13
 
+
+class RefrigeratorDetail(DeleteView):
+    template_name = 'refrigerator_detail.html'
+    model = RefrigeratorModel
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['child_cpmt'] = CompartmentModel.objects.filter(refrigerator=self.get_object())
+        return ctx
+
+
 class RefrigeratorCreate(CreateView):
     template_name = 'create_refrigerator.html'
     model = RefrigeratorModel
@@ -83,7 +94,7 @@ class RefrigeratorUpdate(UpdateView):
 class RefrigeratorDelete(DeleteView):
     template_name = 'delete_refrigerator.html'
     model = RefrigeratorModel
-    success_url = reverse_lazy('ref')
+    success_url = reverse_lazy('ref', kwargs={'filter': 'filter'})
     # class-based版のredirect()と考える。リダイレクト先のURLを指定
 
 class CompartmentList(ListView):
@@ -138,7 +149,7 @@ class CompartmentCreate(CreateView):
             return context
         else:    
             set_ref_owner = User.objects.filter(id=current_user.id)
-            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(id=current_user.id)
+            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(user=current_user)
             return context
     def get_success_url(self):
         return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
@@ -153,7 +164,7 @@ class CompartmentUpdate(UpdateView):
         if current_user.is_superuser:
             return context
         else:    
-            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(id=current_user.id)
+            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(user=current_user.id)
             return context
     def get_success_url(self):
         return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
@@ -162,7 +173,7 @@ class CompartmentDelete(DeleteView):
     template_name = 'delete_compartment.html'
     model = CompartmentModel
     def get_success_url(self):
-        return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
+        return reverse('cpmt', kwargs={'pk':self.object.refrigerator.id})
 
 class Ingredients(ListView):
     template_name = 'ingredients.html' 
