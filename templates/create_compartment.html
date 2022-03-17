@@ -5,6 +5,6 @@
 <form action='' method='POST'>{% csrf_token %}
     {{form.as_p}}
     <input type="submit" value="作成する">
-    <a href="{% url 'ref' %}" class="btn btn-primary">戻る</a>
+    <a href="{% url 'detail_ref' ref_pk %}" class="btn btn-primary">戻る</a>
 </form>
 {% endblock content %}

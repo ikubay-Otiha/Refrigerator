@@ -6,7 +6,7 @@ from sre_constants import SUCCESS
 from weakref import ref
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render, redirect
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy, reverse
 from django.db import models, IntegrityError
 from .models import IngredientsHistoryModel, RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
@@ -49,7 +49,7 @@ class RefrigeratorList(ListView):
     # Added on2/13
 
 
-class RefrigeratorDetail(DeleteView):
+class RefrigeratorDetail(DetailView):
     template_name = 'refrigerator_detail.html'
     model = RefrigeratorModel
 
@@ -145,6 +145,7 @@ class CompartmentCreate(CreateView):
     def get_context_data(self, **kwargs):
         current_user = self.request.user
         context = super().get_context_data(**kwargs)
+        context['ref_pk'] = self.kwargs['ref_pk']
         if current_user.is_superuser:
             return context
         else:    
@@ -152,7 +153,7 @@ class CompartmentCreate(CreateView):
             context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(user=current_user)
             return context
     def get_success_url(self):
-        return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
+        return reverse('detail_ref', kwargs={'pk':self.object.refrigerator_id})
             
 class CompartmentUpdate(UpdateView):
     template_name = 'update_compartment.html'
@@ -174,6 +175,15 @@ class CompartmentDelete(DeleteView):
     model = CompartmentModel
     def get_success_url(self):
         return reverse('cpmt', kwargs={'pk':self.object.refrigerator.id})
+
+
+class CompartmentDetail(DetailView):
+    template = 'compartment_detail.html'
+    model = CompartmentModel
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
+        return ctx
 
 class Ingredients(ListView):
     template_name = 'ingredients.html' 

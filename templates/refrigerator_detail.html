@@ -2,6 +2,7 @@
 
 {% block content %}
 <h1>{{ object.name }} 詳細画面</h1>
+<a href="{% url 'create_cpmt' object.pk %}" class="btn btn-primary">冷蔵室作成</a>
 <div class="alert alert-default">
     {{ cpmt.get_name_display }}
 </div>

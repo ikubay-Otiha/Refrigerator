@@ -11,7 +11,8 @@ urlpatterns = [
     path('update_ref/<int:pk>/', RefrigeratorUpdate.as_view(), name= 'update_ref'),
 
     # path('cpmt_list/<int:pk>/', CompartmentList.as_view(), name = 'cpmt'),
-    path('create_cpmt/', CompartmentCreate.as_view(), name = 'create_cpmt'),
+    path('cpmt_detail/<int:pk>/', CompartmentDetail.as_view(), name = 'cpmt_detail'),
+    path('create_cpmt/<int:ref_pk>', CompartmentCreate.as_view(), name = 'create_cpmt'),
     path('update_cpmt/<int:pk>/', CompartmentUpdate.as_view(), name = 'update_cpmt'),
     path('delete_cpmt/<int:pk>/', CompartmentDelete.as_view(), name = 'delete_cpmt'),
 
