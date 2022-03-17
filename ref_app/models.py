@@ -1,3 +1,4 @@
+from tabnanny import verbose
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -44,6 +45,15 @@ class IngredientsModel(models.Model):
     expiration_date = models.DateField()
     def __str__(self):
         return self.name
+
+class IngredientsHistoryModel(models.Model):
+    update_date = models.DateField(auto_now_add=True, verbose_name="更新日")
+    update_user = models.ForeignKey(User, null=True, verbose_name="更新者", on_delete=models.PROTECT)
+    ingre_name = models.CharField(max_length=200, verbose_name="食材名")
+    ingre_numbers = models.IntegerField(verbose_name="数量")
+    ingre_unit = models.CharField(max_length=50, choices=UNIT, verbose_name="単位")
+    def __str___(self):
+        return f"{self.pk}/{self.ingre_name}"
 
 class InfomationModel(models.Model):
     title = models.CharField(max_length=50)

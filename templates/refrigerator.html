@@ -2,8 +2,41 @@
 
 {% block content %}
 <a href="{% url 'create_ref' %}" class="btn btn-primary">冷蔵庫作成</a>
+<a href="{% url 'ref' 'all' %}" class="btn btn-primary">日付新しい順</a>
+<a href="{% url 'ref' 'filter_date' %}" class="btn btn-primary">日付古い順</a>
+<a href="{% url 'ref' 'filter_name' %}" class="btn btn-primary">名前順</a>
 
 <div class="list-group">
+    {% if request.path == "/ref/filter_date/" %}
+    {% for refrigerator in filter_date %}
+    <a href="{% url 'cpmt' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">{{ refrigerator.name }}</h5>
+        <small>{{ refrigerator.date }}</small>
+      </div>
+      <small>Something to describe.</small>
+    </a>
+</div>
+    <a href="{% url 'update_ref' refrigerator.pk %}" class="btn btn-info">冷蔵庫更新</a>
+    <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">冷蔵庫削除</a>
+    {% endfor %}
+
+    {% elif request.path == "/ref/filter_name/" %}
+    {% for refrigerator in filter_name %}
+    <a href="{% url 'cpmt' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">{{ refrigerator.name }}</h5>
+        <small>{{ refrigerator.date }}</small>
+      </div>
+      <small>Something to describe.</small>
+    </a>
+</div>
+    <a href="{% url 'update_ref' refrigerator.pk %}" class="btn btn-info">冷蔵庫更新</a>
+    <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">冷蔵庫削除</a>
+    {% endfor %}
+
+
+    {% else %}
     {% for refrigerator in object_list %}
     <a href="{% url 'cpmt' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
       <div class="d-flex w-100 justify-content-between">
@@ -16,7 +49,9 @@
 </div>
     <a href="{% url 'update_ref' refrigerator.pk %}" class="btn btn-info">冷蔵庫更新</a>
     <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">冷蔵庫削除</a>
-    <p></p>
     {% endfor %}
+    {% endif %}
 
+<p></p>
+<a href="{% url 'home' %}" class="btn btn-primary">戻る</a>
 {% endblock content %}

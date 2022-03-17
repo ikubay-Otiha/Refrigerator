@@ -4,7 +4,7 @@ from .views import *
 urlpatterns = [
     path('home/', HomeList.as_view(), name = 'home'),
 
-    path('ref/', RefrigeratorList.as_view(), name = 'ref'),
+    path('ref/<str:filter>/', RefrigeratorList.as_view(), name = 'ref'),
     path('create_ref/', RefrigeratorCreate.as_view(), name = 'create_ref'),
     path('delete_ref/<int:pk>/', RefrigeratorDelete.as_view(), name= 'delete_ref'),
     path('update_ref/<int:pk>/', RefrigeratorUpdate.as_view(), name= 'update_ref'),
@@ -18,6 +18,7 @@ urlpatterns = [
     path('create_ingre/', IngredientsCreate.as_view(), name= 'create_ingre'),
     path('update_ingre/<int:pk>/', IngredientsUpdate.as_view(), name= 'update_ingre'),
     path('delete_ingre/<int:pk>/', IngredientsDelete.as_view(), name= 'delete_ingre'),
+    path('create_ingre_history/', IngredientsHistoryCreate.as_view(), name= 'create_history_ing'),
 
     path('info/', InfomationList.as_view(), name= 'info'),
     path('create_info/', InfomationCreate.as_view(), name= 'create_info'),

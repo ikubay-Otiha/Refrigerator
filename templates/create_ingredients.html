@@ -5,6 +5,11 @@
 <form action='' method='POST'>{% csrf_token %}
     {{form.as_p}} 
     <!-- form = viewsにあるRefrigaratorCreateのformと同一 -->
+    
+    <!-- {% for num in numbers %} -->
+        <!-- <h1>{ itemlist[{{ forloop.counter0 }}].id}</h1> -->
+    <!-- {% endfor %} -->
+    
     <input type="submit" value="作成する">
     {% comment 'temporary evacuation' %}
     <!-- <a href="{% url 'ingre' object.pk %}" class="btn btn-primary">戻る</a> -->

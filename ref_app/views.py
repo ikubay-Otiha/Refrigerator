@@ -3,12 +3,13 @@ from http.client import REQUEST_URI_TOO_LONG
 from pipes import Template
 from re import template
 from sre_constants import SUCCESS
+from weakref import ref
 from django.http import HttpResponse, HttpResponseForbidden
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy, reverse
 from django.db import models, IntegrityError
-from .models import RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
+from .models import IngredientsHistoryModel, RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 import datetime
@@ -20,7 +21,7 @@ class HomeList(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['name'] = self.request.user
-        
+        context['filter'] = User.objects.all()
         return context
 class RefrigeratorList(ListView):
     template_name = 'refrigerator.html'
@@ -32,6 +33,19 @@ class RefrigeratorList(ListView):
         else:
             return RefrigeratorModel.objects.filter(user=current_user.id).order_by('date').reverse
         return HttpResponseForbidden
+    def get_context_data(self, **kwargs):
+        current_user = self.request.user
+        context = super().get_context_data(**kwargs)
+        if current_user.is_superuser:
+            context['filter_date'] = RefrigeratorModel.objects.all().order_by('date')
+            context['filter_name'] = RefrigeratorModel.objects.all().order_by('name').reverse
+            return context
+        else:
+            context['filter_date'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('date')
+            context['filter_name'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('name').reverse
+            return context
+
+    
     # Added on2/13
 
 class RefrigeratorCreate(CreateView):
@@ -124,7 +138,7 @@ class CompartmentCreate(CreateView):
             return context
         else:    
             set_ref_owner = User.objects.filter(id=current_user.id)
-            context['form'].fields['refrigerator'].queryset = User.objects.filter(id=current_user.id)
+            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(id=current_user.id)
             return context
     def get_success_url(self):
         return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
@@ -179,10 +193,33 @@ class IngredientsCreate(CreateView):
     template_name ='create_ingredients.html'
     model = IngredientsModel
     fields =('name', 'compartment', 'numbers', 'unit', 'expiration_date')
+    
     def get_queryset(self):
+        current_user = self.request.user
+        current_user.id = self.request.user.id
+        queryset = User.objects.filter(id=current_user.id)
+        cpmt_owner = queryset[0].id 
         # ref_pk = RefrigeratorModel.objects.filter(id=self.kwargs["pk"])
-        return IngredientsModel.objects.all()
-    # success_url = reverse_lazy('ingre')
+        if current_user.is_superuser:
+            return IngredientsModel.objects.all()
+        elif self.request.user.id == cpmt_owner:
+            return IngredientsModel.objects.filter(refrigerator_id=self.kwargs['pk'])
+        return HttpResponseForbidden
+
+    def get_context_data(self, **kwargs):
+        current_user = self.request.user
+        context = super().get_context_data(**kwargs)
+        itemlist = list()
+        if current_user.is_superuser:
+            return context
+        else:    
+            ref_owner = RefrigeratorModel.objects.filter(user=current_user.id)
+            for i in ref_owner:
+                itemlist.append(i)
+            context['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=current_user.id)
+            context['itemlist'] = ref_owner
+            return context
+        
     def get_success_url(self):
         return reverse('ingre', kwargs={'pk':self.object.ingredients_id})
 
@@ -200,6 +237,31 @@ class IngredientsDelete(DeleteView):
     model = IngredientsModel
     success_url = reverse_lazy('ingre')
 
+# Ingredientsの更新履歴保存View
+
+class IngredientsHistoryCreate(CreateView):
+    template_name = 'create_ingre_history.html'
+    model = IngredientsHistoryModel
+    fields = ('update_user', 'ingre_name', 'ingre_numbers', 'ingre_unit')
+    def form_valid(self, form):
+        pk = self.kwargs.get('pk')
+        ingredients = get_object_or_404(IngredientsModel, pk=pk)
+        update_date = int(self.request.POST.get('update_date'))
+        update_user = self.request.user
+        ingre_name = self.request.POST.get('ingre_name')
+        ingre_numbers = int(self.request.POST.get('ingre_numbers'))
+        ingre_unit = self.request.POST.get('ingre_unit')
+
+        history = form.save(commit=False)
+        history.ingre = ingredients
+        history.date = update_date
+        history.user = update_user
+        history.ingre_name = ingre_name
+        history.ingre_num = ingre_numbers
+        history.ingre_unit = ingre_unit
+        history.save()
+        return redirect('ingre', pk=pk)
+
 class InfomationList(ListView):
     template_name = 'info_list.html'
     model = InfomationModel
@@ -208,7 +270,7 @@ class InfomationList(ListView):
         if current_user.is_superuser:
             return InfomationModel.objects.all().order_by('date').reverse
         else:
-            return InfomationModel.objects.filter(user=current_user.id).order_by('date').reverse
+            return InfomationModel.objects.filter(id=current_user.id).order_by('date').reverse
         return HttpResponseForbidden
 
 class InfomationCreate(CreateView):
@@ -228,6 +290,7 @@ class InfomationDelete(DeleteView):
     model = InfomationModel
     success_url = reverse_lazy('info')
 
+# login,logout,signupview
 def loginview(request):
     if request.method == 'POST':
         username_data = request.POST['username_data']
