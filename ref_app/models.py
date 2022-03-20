@@ -34,7 +34,7 @@ UNIT = (
 class IngredientsModel(models.Model):
     name = models.CharField(max_length=200)
     user = models.ForeignKey(User, null=True, on_delete=models.PROTECT)
-    compartment = models.ManyToManyField(CompartmentModel)
+    compartment = models.ManyToManyField(CompartmentModel,related_name='ing_cpmt')
     # 一対多の場合:食材が多になる、キーは多につける。
     numbers = models.IntegerField()
     unit = models.CharField(
@@ -42,18 +42,38 @@ class IngredientsModel(models.Model):
         choices = UNIT
     )
     date = models.DateField(auto_now_add=True)
-    expiration_date = models.DateField()
+    expiration_date = models.DateField(verbose_name="賞味期限")
     def __str__(self):
         return self.name
 
 class IngredientsHistoryModel(models.Model):
+    ingre_name = models.OneToOneField(
+        IngredientsModel,
+        null=True, 
+        on_delete=models.PROTECT, 
+        verbose_name="食材名",
+        related_name='history_ing_name'
+    )
+    ingre_cpmt = models.ForeignKey(
+        IngredientsModel,
+        null=True, 
+        on_delete=models.PROTECT, 
+        verbose_name="冷蔵室名",
+        related_name='history_ing_cpmt'
+    )
     update_date = models.DateField(auto_now_add=True, verbose_name="更新日")
-    update_user = models.ForeignKey(User, null=True, verbose_name="更新者", on_delete=models.PROTECT)
-    ingre_name = models.CharField(max_length=200, verbose_name="食材名")
     ingre_numbers = models.IntegerField(verbose_name="数量")
     ingre_unit = models.CharField(max_length=50, choices=UNIT, verbose_name="単位")
+    expiration_date = models.ForeignKey(
+        IngredientsModel, 
+        null=True, 
+        on_delete=models.PROTECT, 
+        verbose_name="賞味期限",
+        related_name='history_ing_exp_date',
+    )
     def __str___(self):
         return f"{self.pk}/{self.ingre_name}"
+    # IngredientsModelとリレーションを組みましょう。
 
 class InfomationModel(models.Model):
     title = models.CharField(max_length=50)

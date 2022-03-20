@@ -187,13 +187,14 @@ class Ingredients(ListView):
                 over_expiration_items.append(ingredient)
                 ingredient.is_over_expiration = True
         context['over_expiration_items'] = over_expiration_items
+        context['passed_ing_pk'] = self.kwargs['pk']
         return context
 
 class IngredientsCreate(CreateView):
     template_name ='create_ingredients.html'
     model = IngredientsModel
     fields =('name', 'compartment', 'numbers', 'unit', 'expiration_date')
-    
+    # success_url = reverse_lazy('ingre', self.object.pk)
     def get_queryset(self):
         current_user = self.request.user
         current_user.id = self.request.user.id
@@ -219,9 +220,40 @@ class IngredientsCreate(CreateView):
             context['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=current_user.id)
             context['itemlist'] = ref_owner
             return context
-        
+    
+    def form_valid(self, form):
+        """If the form is valid, save the associated model."""
+        self.object = form.save()
+        ing_ins = form.instance
+        # ing_ins = IngredientsModel.objects.filter(id=ing_ins_id)
+        cpmt_id = form.cleaned_data['compartment'][0].id
+        IngredientsHistoryModel.objects.create(
+            ingre_name = ing_ins,
+            # ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
+            # ↑インスタンスでないとエラー
+            update_date = datetime.datetime.now(),
+            ingre_numbers = form.cleaned_data['numbers'],
+            ingre_unit = form.cleaned_data['unit'],
+            # expiration_date = form.cleaned_data['expiration_date'],
+        )
+        return super().form_valid(form)
+        # 自分で指定したModelに右辺を保存。
+        # Modelが持っていないカラムは指定できない。
+        # update,deleteViewでも同様の記載をする。
+        # deleteに見せかけたupdateviewを作成。
+        # CompartmentDetailViewで0個のIngredientsを表示させないようにする
+
+
     def get_success_url(self):
-        return reverse('ingre', kwargs={'pk':self.object.ingredients_id})
+        current_user = self.request.user
+        kwargs={'pk':self.object.pk}
+        test1 = IngredientsModel.objects.all()
+        test2 = IngredientsModel
+        set_ing_pk = IngredientsModel.objects.filter(id=current_user.id)
+        ing_pk = set_ing_pk[0].id
+        return reverse_lazy('ingre', ing_pk)
+        # kwargs={'pk':self.object.id}
+        # return reverse_lazy('create_history_ing', kwargs=kwargs)
 
 class IngredientsUpdate(UpdateView):
     template_name = 'update_ingredients.html'
@@ -239,28 +271,48 @@ class IngredientsDelete(DeleteView):
 
 # Ingredientsの更新履歴保存View
 
-class IngredientsHistoryCreate(CreateView):
+# class IngredientsHistoryCreate(CreateView):
     template_name = 'create_ingre_history.html'
     model = IngredientsHistoryModel
     fields = ('update_user', 'ingre_name', 'ingre_numbers', 'ingre_unit')
-    def form_valid(self, form):
-        pk = self.kwargs.get('pk')
-        ingredients = get_object_or_404(IngredientsModel, pk=pk)
-        update_date = int(self.request.POST.get('update_date'))
-        update_user = self.request.user
-        ingre_name = self.request.POST.get('ingre_name')
-        ingre_numbers = int(self.request.POST.get('ingre_numbers'))
-        ingre_unit = self.request.POST.get('ingre_unit')
+    success_url = reverse_lazy()
+    # 複数行の記載（条件分岐など）によってsuccess_urlが変わるときはget_success_urlを用いる
 
-        history = form.save(commit=False)
-        history.ingre = ingredients
-        history.date = update_date
-        history.user = update_user
-        history.ingre_name = ingre_name
-        history.ingre_num = ingre_numbers
-        history.ingre_unit = ingre_unit
-        history.save()
-        return redirect('ingre', pk=pk)
+    def form_valid(self, form):
+        """If the form is valid, save the associated model."""
+        self.object = form.save()
+        IngredientsHistoryModel.objects.create(
+            update_date = 'update_date',
+            update_user = 'update_user',
+            ingre_name =  'ingre_name',
+            ingre_numbers =  'ingre_numbers',
+            ingre_unit = 'ingre_unit',
+        )
+        # 自分で指定したModelに保存。（の中身を）
+        # Modelが持っていないカラムは指定できない。
+        # update,deleteViewでも同様の記載をする。
+        # deleteに見せかけたupdateviewを作成。
+        # CompartmentDetailViewで0個のIngredientsを表示させないようにする
+        return super().form_valid(form)
+    
+    # def form_valid(self, form):
+        # pk = self.kwargs.get('pk')
+        # ingredients = get_object_or_404(IngredientsModel, pk=pk)
+        # update_date = int(self.request.POST.get('update_date'))
+        # update_user = self.request.user
+        # ingre_name = self.request.POST.get('ingre_name')
+        # ingre_numbers = int(self.request.POST.get('ingre_numbers'))
+        # ingre_unit = self.request.POST.get('ingre_unit')
+# 
+        # history = form.save(commit=False)
+        # history.ingre = ingredients
+        # history.date = update_date
+        # history.user = update_user
+        # history.ingre_name = ingre_name
+        # history.ingre_num = ingre_numbers
+        # history.ingre_unit = ingre_unit
+        # history.save()
+        # return redirect('ingre', pk=pk)
 
 class InfomationList(ListView):
     template_name = 'info_list.html'
