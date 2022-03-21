@@ -5,7 +5,7 @@
 <form action='' method='POST'>{% csrf_token %}
 {{form.as_p}} 
     <input type="submit" value="更新する">
-    <a href="{% url 'ref' 'all' %}" class="btn btn-primary">戻る</a>
+    <a href="{% url 'ref' %}" class="btn btn-primary">戻る</a>
 </form>
 
 {{hoge}}

@@ -5,7 +5,7 @@
 <h5>{{object.name}}を削除しても良いですか？</h5>
 <form action='' method='POST'>{% csrf_token %}
     <input type="submit" value="削除する">
-    <a href="{% url 'ref' 'all' %}" class="btn btn-primary">戻る</a>
+    <a href="{% url 'ref' %}" class="btn btn-primary">戻る</a>
 </form>
 
 {{hoge}}

@@ -3,11 +3,14 @@
 {% block content %}
 <h1>{{ object.name }} 詳細画面</h1>
 <a href="{% url 'create_cpmt' object.pk %}" class="btn btn-primary">冷蔵室作成</a>
+<a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">日付新しい順</a>
+<a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">日付古い順</a>
+<a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">名前順</a>
 <div class="alert alert-default">
     {{ cpmt.get_name_display }}
 </div>
 {% for cpmt in child_cpmt %}
-    <a href="{% url 'ingre' cpmt.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
+    <a href="{% url 'cpmt_detail' cpmt.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
       <div class="d-flex w-100 justify-content-between">
         <h5 class="mb-1">{{ cpmt.get_name_display }}</h5>
         <small>{{ cpmt.date }}</small>

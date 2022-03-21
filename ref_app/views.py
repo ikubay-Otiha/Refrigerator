@@ -168,17 +168,16 @@ class CompartmentUpdate(UpdateView):
             context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(user=current_user.id)
             return context
     def get_success_url(self):
-        return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
+        return reverse('detail_ref', kwargs={'pk':self.object.refrigerator_id})
 
 class CompartmentDelete(DeleteView):
     template_name = 'delete_compartment.html'
     model = CompartmentModel
     def get_success_url(self):
-        return reverse('cpmt', kwargs={'pk':self.object.refrigerator.id})
-
+        return reverse('detail_ref', kwargs={'pk':self.object.refrigerator.id})
 
 class CompartmentDetail(DetailView):
-    template = 'compartment_detail.html'
+    template_name = 'compartment_detail.html'
     model = CompartmentModel
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -209,6 +208,14 @@ class Ingredients(ListView):
                 ingredient.is_over_expiration = True
         context['over_expiration_items'] = over_expiration_items
         return context
+
+class IngredientsDetail(DetailView):
+    template_name = 'ingredients.html'
+    model = IngredientsModel
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
+        return ctx
 
 class IngredientsCreate(CreateView):
     template_name ='create_ingredients.html'
@@ -353,6 +360,9 @@ def signupview(request):
     return redirect('login')
     # return render(request, 'login.html', {"you":request.POST.get('username_data')})
 
+class Test(ListView):
+    template_name = "test.html"
+    queryset = User.objects.all()
 
 # from path.to.the.model import MyModel # 事前にモデルがimportされていない場合
 # MyModel._meta.get_fields()

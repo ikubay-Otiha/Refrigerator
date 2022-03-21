@@ -17,6 +17,7 @@ urlpatterns = [
     path('delete_cpmt/<int:pk>/', CompartmentDelete.as_view(), name = 'delete_cpmt'),
 
     path('ingre/<int:pk>/', Ingredients.as_view(), name='ingre'),
+    # path('ingre/<int:pk>/', IngredientsDetail.as_view(), name='ingre'),
     path('create_ingre/', IngredientsCreate.as_view(), name= 'create_ingre'),
     path('update_ingre/<int:pk>/', IngredientsUpdate.as_view(), name= 'update_ingre'),
     path('delete_ingre/<int:pk>/', IngredientsDelete.as_view(), name= 'delete_ingre'),
@@ -32,4 +33,5 @@ urlpatterns = [
 
     path('signup/', signupview, name='signup'),
 
+    path('html_test', Test.as_view(), name='test')
 ]
