@@ -4,20 +4,9 @@
 {% endblock header %}
 
 {% block content %}
-{% if over_expiration_items|length > 0 %}
-  <h3>賞味期限が切れている食材があります。</h3>
-  <!-- |←パイプ：フィルタリングをする。今回はリストの要素数が0以上ならば
-        over_expiration_items を表示　-->
-  <ul>
-    {% for item in over_expiration_items %}
-    <li>{{ item.name }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
-
 <a href="{% url 'create_ingre' object.pk %}" class="btn btn-primary">材料追加</a>
 <div class="list-group">
-    {% for ing_s in object_list %}
+    {% for ing_s in child_ingredients %}
     <a class="list-group-item list-group-item-action active" aria-current="true">
       <div class="d-flex w-100 justify-content-between" 
         {% if ing_s.is_over_expiration %}style="background-color: red"{% endif %}>
@@ -31,6 +20,6 @@
     <a href="{% url 'delete_ingre' ing_s.pk %}" class="btn btn-danger">材料削除</a>
     <p></p>
     {% endfor %}
-    <a href="{#}" class="btn btn-primary">戻る</a>
+    {% comment %}<a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">戻る</a>{% endcomment %}
 
 {% endblock content %}

@@ -6,7 +6,7 @@ from sre_constants import SUCCESS
 from weakref import ref
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render, redirect
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy, reverse
 from django.db import models, IntegrityError
 from .models import IngredientsHistoryModel, RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
@@ -44,9 +44,17 @@ class RefrigeratorList(ListView):
             context['filter_date'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('date')
             context['filter_name'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('name').reverse
             return context
-
-    
     # Added on2/13
+
+class RefrigeratorDetail(DetailView):
+    template_name = 'refrigerator_detail.html'
+    model = RefrigeratorModel
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['child_cpmt'] = CompartmentModel.objects.filter(refrigerator=self.get_object())
+        return ctx
+
 
 class RefrigeratorCreate(CreateView):
     template_name = 'create_refrigerator.html'
@@ -84,6 +92,7 @@ class RefrigeratorDelete(DeleteView):
     template_name = 'delete_refrigerator.html'
     model = RefrigeratorModel
     success_url = reverse_lazy('ref')
+    # success_url = reverse_lazy('ref', kwargs={'filter': 'filter'})
     # class-based版のredirect()と考える。リダイレクト先のURLを指定
 
 class CompartmentList(ListView):
@@ -134,14 +143,15 @@ class CompartmentCreate(CreateView):
     def get_context_data(self, **kwargs):
         current_user = self.request.user
         context = super().get_context_data(**kwargs)
+        context['ref_pk'] = self.kwargs['ref_pk']
         if current_user.is_superuser:
             return context
         else:    
             set_ref_owner = User.objects.filter(id=current_user.id)
-            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(id=current_user.id)
+            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(user=current_user)
             return context
     def get_success_url(self):
-        return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
+        return reverse('detail_ref', kwargs={'pk':self.object.refrigerator_id})
             
 class CompartmentUpdate(UpdateView):
     template_name = 'update_compartment.html'
@@ -153,16 +163,24 @@ class CompartmentUpdate(UpdateView):
         if current_user.is_superuser:
             return context
         else:    
-            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(id=current_user.id)
+            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(user=current_user.id)
             return context
     def get_success_url(self):
-        return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
+        return reverse('detail_ref', kwargs={'pk':self.object.refrigerator_id})
 
 class CompartmentDelete(DeleteView):
     template_name = 'delete_compartment.html'
     model = CompartmentModel
     def get_success_url(self):
-        return reverse('cpmt', kwargs={'pk':self.object.refrigerator_id})
+        return reverse('detail_ref', kwargs={'pk':self.object.refrigerator.id})
+
+class CompartmentDetail(DetailView):
+    template_name = 'compartment_detail.html'
+    model = CompartmentModel
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
+        return ctx
 
 class Ingredients(ListView):
     template_name = 'ingredients.html' 
@@ -190,6 +208,14 @@ class Ingredients(ListView):
         context['passed_ing_pk'] = self.kwargs['pk']
         return context
 
+class IngredientsDetail(DetailView):
+    template_name = 'ingredients.html'
+    model = IngredientsModel
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
+        return ctx
+
 class IngredientsCreate(CreateView):
     template_name ='create_ingredients.html'
     model = IngredientsModel
@@ -210,15 +236,18 @@ class IngredientsCreate(CreateView):
     def get_context_data(self, **kwargs):
         current_user = self.request.user
         context = super().get_context_data(**kwargs)
+        context['cpmt_pk'] = self.kwargs['cpmt_pk']
         itemlist = list()
         if current_user.is_superuser:
             return context
         else:    
-            ref_owner = RefrigeratorModel.objects.filter(user=current_user.id)
-            for i in ref_owner:
-                itemlist.append(i)
-            context['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=current_user.id)
-            context['itemlist'] = ref_owner
+            cpmt_pk = context['cpmt_pk']
+            ref_query = RefrigeratorModel.objects.filter(user=current_user.id)
+            context['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=cpmt_pk)
+            # for i in ref_query:
+                # itemlist.append(i)
+                # context['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(refrigerator_id=i.id)
+                # context['itemlist'] = ref_query
             return context
     
     def form_valid(self, form):
@@ -384,6 +413,9 @@ def signupview(request):
     return redirect('login')
     # return render(request, 'login.html', {"you":request.POST.get('username_data')})
 
+class Test(ListView):
+    template_name = "test.html"
+    queryset = User.objects.all()
 
 # from path.to.the.model import MyModel # 事前にモデルがimportされていない場合
 # MyModel._meta.get_fields()

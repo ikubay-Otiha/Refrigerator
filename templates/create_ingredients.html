@@ -11,9 +11,7 @@
     <!-- {% endfor %} -->
     
     <input type="submit" value="作成する">
-    {% comment 'temporary evacuation' %}
-    <!-- <a href="{% url 'ingre' object.pk %}" class="btn btn-primary">戻る</a> -->
-    {% endcomment%}
+    <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-primary">戻る</a>
 </form>
 
 {% endblock content %}
