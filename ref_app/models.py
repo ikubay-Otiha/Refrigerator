@@ -69,7 +69,7 @@ class IngredientsHistoryModel(models.Model):
         related_name='history_ing_name'
     )
     ingre_cpmt = models.ForeignKey(
-        IngredientsModel,
+        CompartmentModel,
         null=True, 
         on_delete=models.PROTECT, 
         verbose_name="冷蔵室名",
@@ -78,12 +78,9 @@ class IngredientsHistoryModel(models.Model):
     update_date = models.DateField(auto_now_add=True, verbose_name="更新日")
     ingre_numbers = models.IntegerField(verbose_name="数量")
     ingre_unit = models.CharField(max_length=50, choices=UNIT, verbose_name="単位")
-    expiration_date = models.ForeignKey(
-        IngredientsModel, 
+    expiration_date = models.DateField( 
         null=True, 
-        on_delete=models.PROTECT, 
-        verbose_name="賞味期限",
-        related_name='history_ing_exp_date',
+        verbose_name="賞味期限"
     )
     def __str___(self):
         return f"{self.pk}/{self.ingre_name}"

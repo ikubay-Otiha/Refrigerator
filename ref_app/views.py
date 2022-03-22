@@ -220,7 +220,7 @@ class IngredientsCreate(CreateView):
     template_name ='create_ingredients.html'
     model = IngredientsModel
     fields =('name', 'compartment', 'numbers', 'unit', 'expiration_date')
-    # success_url = reverse_lazy('ingre', self.object.pk)
+    # success_url = reverse_lazy('ingre')
     def get_queryset(self):
         current_user = self.request.user
         current_user.id = self.request.user.id
@@ -258,12 +258,11 @@ class IngredientsCreate(CreateView):
         cpmt_id = form.cleaned_data['compartment'][0].id
         IngredientsHistoryModel.objects.create(
             ingre_name = ing_ins,
-            # ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
-            # ↑インスタンスでないとエラー
+            ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
             update_date = datetime.datetime.now(),
             ingre_numbers = form.cleaned_data['numbers'],
             ingre_unit = form.cleaned_data['unit'],
-            # expiration_date = form.cleaned_data['expiration_date'],
+            expiration_date = form.cleaned_data['expiration_date'],
         )
         return super().form_valid(form)
         # 自分で指定したModelに右辺を保存。
@@ -276,11 +275,13 @@ class IngredientsCreate(CreateView):
     def get_success_url(self):
         current_user = self.request.user
         kwargs={'pk':self.object.pk}
-        test1 = IngredientsModel.objects.all()
-        test2 = IngredientsModel
+        test1 = RefrigeratorModel.objects.filter(id=current_user.id)
+        test2 = IngredientsModel.objects.filter(compartment=1)
+        test_id_pass = test1[0].id
         set_ing_pk = IngredientsModel.objects.filter(id=current_user.id)
+        test_cpmt_pk = IngredientsModel.objects.filter(compartment=test_id_pass)
         ing_pk = set_ing_pk[0].id
-        return reverse_lazy('ingre', ing_pk)
+        return reverse_lazy('cpmt_detail', ing_pk)
         # kwargs={'pk':self.object.id}
         # return reverse_lazy('create_history_ing', kwargs=kwargs)
 
@@ -290,7 +291,7 @@ class IngredientsUpdate(UpdateView):
     fields =('name', 'compartment', 'numbers', 'unit', 'expiration_date')
     # success_url = reverse_lazy('ingre')
     def get_success_url(self):
-        return reverse('ingre', kwargs={'pk':self.object.ingredients_id})
+        return reverse('ref_app:ingre', kwargs={'pk':self.object.ingredients_id})
 
 
 class IngredientsDelete(DeleteView):
