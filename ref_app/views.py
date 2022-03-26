@@ -1,15 +1,12 @@
 from datetime import datetime
-from http.client import REQUEST_URI_TOO_LONG
-from pipes import Template
-from re import template
-from sre_constants import SUCCESS
-from weakref import ref
+from multiprocessing import cpu_count
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy, reverse
 from django.db import models, IntegrityError
 from .models import IngredientsHistoryModel, RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
+from .forms import IngredientsCreateForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 import datetime
@@ -37,14 +34,15 @@ class RefrigeratorList(ListView):
         current_user = self.request.user
         context = super().get_context_data(**kwargs)
         if current_user.is_superuser:
+            context['name'] = self.request.user
             context['filter_date'] = RefrigeratorModel.objects.all().order_by('date')
             context['filter_name'] = RefrigeratorModel.objects.all().order_by('name').reverse
             return context
         else:
+            context['name'] = self.request.user
             context['filter_date'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('date')
             context['filter_name'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('name').reverse
             return context
-    # Added on2/13
 
 class RefrigeratorDetail(DetailView):
     template_name = 'refrigerator_detail.html'
@@ -52,9 +50,9 @@ class RefrigeratorDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        ctx['name'] = self.request.user
         ctx['child_cpmt'] = CompartmentModel.objects.filter(refrigerator=self.get_object())
         return ctx
-
 
 class RefrigeratorCreate(CreateView):
     template_name = 'create_refrigerator.html'
@@ -95,51 +93,22 @@ class RefrigeratorDelete(DeleteView):
     # success_url = reverse_lazy('ref', kwargs={'filter': 'filter'})
     # class-based版のredirect()と考える。リダイレクト先のURLを指定
 
-class CompartmentList(ListView):
-    template_name = 'compartment.html' #←　ref_door.html
+class CompartmentDetail(DetailView):
+    template_name = 'compartment_detail.html'
     model = CompartmentModel
-    def get_queryset(self):
-        current_user = self.request.user
-        current_user.id = self.request.user.id
-        queryset6 = User.objects.filter(id=current_user.id)
-        ref_owner = queryset6[0].id   
-        if current_user.is_superuser:
-            return CompartmentModel.objects.all().order_by('date').reverse()
-        elif self.request.user.id == ref_owner:
-            return CompartmentModel.objects.filter(refrigerator_id=self.kwargs['pk']).order_by('date').reverse()
-        # CompartmentModel.objects.filter(refrigerator_id=current_user.id, ).order_by('date').reverse()
-  
-    def get_cotext_data(self, **kwargs):
-        current_user = self.request.user
-        current_user.id = self.request.user.id
-        queryset = User.objects.filter(id=current_user.id)
-        ref_owner = queryset[0].id
-        context = super().get_context_data(**kwargs)
-        cpmt_list = CompartmentModel.objects.filter(id=self.kwargs['pk'])
-        context['form'] = cpmt_list
-        context["ref_pk"] = ref_owner
-        return context
-
-    # アクセスしてきたユーザがその冷蔵庫の所有者か調べる(そうだったら処理継続、違ったら弾く)
-    # 仕込んだpkをもとに表示するCompartmentを絞る
-    # Added on2/23 CompartmentModel.refrigetaor_idが冷蔵庫所有者をしめす。
-
-    # get_context_data : viewsで指定した変数をhtmlへ渡すことができる
-    # ex)現在時刻など、自分が付加しないデータを渡せる
-    # def get_queryset(self):
-    #     query_set = self.model.objects.filter(doorname = '肉冷凍室')
-    #     return query_set
-    #     # あるユーザーの冷蔵庫一覧を取りたい時など。
-    #     # あるユーザーの、あるリクエストに対して指定する。等(今回はobject_list)
-    #     # ListViewの中の関数をチェックorGoogle.
+    def get_context_data(self, **kwargs):
+        get_cpmt = self.get_object()
+        ctx = super().get_context_data(**kwargs)
+        ctx['name'] = self.request.user
+        ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
+        ctx['get_cpmt'] = get_cpmt
+        ctx['test'] = CompartmentModel.objects.filter(id=self.object.id)
+        return ctx
 
 class CompartmentCreate(CreateView):
     template_name = 'create_compartment.html' #←　create_door.html
     model = CompartmentModel
     fields = ('name', 'refrigerator')
-    # def get(self, *args, **kwargs):
-        # self.object = self.get_object()
-        # return self.object
     def get_context_data(self, **kwargs):
         current_user = self.request.user
         context = super().get_context_data(**kwargs)
@@ -174,40 +143,6 @@ class CompartmentDelete(DeleteView):
     def get_success_url(self):
         return reverse('detail_ref', kwargs={'pk':self.object.refrigerator.id})
 
-class CompartmentDetail(DetailView):
-    template_name = 'compartment_detail.html'
-    model = CompartmentModel
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
-        return ctx
-
-class Ingredients(ListView):
-    template_name = 'ingredients.html' 
-    model = IngredientsModel
-    def get_queryset(self):
-        current_user = self.request.user
-        if current_user.is_superuser:
-            return IngredientsModel.objects.all().order_by('date').reverse()
-        else:
-            return IngredientsModel.objects.filter(id=current_user.id)
-    # Added on2/14
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        over_expiration_items = list()
-        # context['object_list'] はget_querysetの結果得られた IngredientsModelのlist
-        for ingredient in context['object_list']:
-            expiration = ingredient.expiration_date
-            today = datetime.date.today()
-            difference = expiration - today
-            over_expiration = difference < datetime.timedelta(0)
-            if over_expiration:
-                over_expiration_items.append(ingredient)
-                ingredient.is_over_expiration = True
-        context['over_expiration_items'] = over_expiration_items
-        context['passed_ing_pk'] = self.kwargs['pk']
-        return context
-
 class IngredientsDetail(DetailView):
     template_name = 'ingredients.html'
     model = IngredientsModel
@@ -220,13 +155,12 @@ class IngredientsCreate(CreateView):
     template_name ='create_ingredients.html'
     model = IngredientsModel
     fields =('name', 'compartment', 'numbers', 'unit', 'expiration_date')
-    # success_url = reverse_lazy('ingre')
+    # success_url = reverse_lazy('cpmt_detail')
     def get_queryset(self):
         current_user = self.request.user
         current_user.id = self.request.user.id
         queryset = User.objects.filter(id=current_user.id)
         cpmt_owner = queryset[0].id 
-        # ref_pk = RefrigeratorModel.objects.filter(id=self.kwargs["pk"])
         if current_user.is_superuser:
             return IngredientsModel.objects.all()
         elif self.request.user.id == cpmt_owner:
@@ -237,24 +171,18 @@ class IngredientsCreate(CreateView):
         current_user = self.request.user
         context = super().get_context_data(**kwargs)
         context['cpmt_pk'] = self.kwargs['cpmt_pk']
-        itemlist = list()
         if current_user.is_superuser:
             return context
         else:    
             cpmt_pk = context['cpmt_pk']
-            ref_query = RefrigeratorModel.objects.filter(user=current_user.id)
             context['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=cpmt_pk)
-            # for i in ref_query:
-                # itemlist.append(i)
-                # context['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(refrigerator_id=i.id)
-                # context['itemlist'] = ref_query
+            context['add_date_form'] = IngredientsCreateForm()
             return context
     
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
         self.object = form.save()
         ing_ins = form.instance
-        # ing_ins = IngredientsModel.objects.filter(id=ing_ins_id)
         cpmt_id = form.cleaned_data['compartment'][0].id
         IngredientsHistoryModel.objects.create(
             ingre_name = ing_ins,
@@ -271,79 +199,43 @@ class IngredientsCreate(CreateView):
         # deleteに見せかけたupdateviewを作成。
         # CompartmentDetailViewで0個のIngredientsを表示させないようにする
 
-
     def get_success_url(self):
-        current_user = self.request.user
-        kwargs={'pk':self.object.pk}
-        test1 = RefrigeratorModel.objects.filter(id=current_user.id)
-        test2 = IngredientsModel.objects.filter(compartment=1)
-        test_id_pass = test1[0].id
-        set_ing_pk = IngredientsModel.objects.filter(id=current_user.id)
-        test_cpmt_pk = IngredientsModel.objects.filter(compartment=test_id_pass)
-        ing_pk = set_ing_pk[0].id
-        return reverse_lazy('cpmt_detail', ing_pk)
+        return reverse_lazy('cpmt_detail', kwargs={'pk' : self.kwargs["cpmt_pk"]})
         # kwargs={'pk':self.object.id}
-        # return reverse_lazy('create_history_ing', kwargs=kwargs)
+        # return reverse_lazy('cpmt_detail', self.kwargs[cpmt_pk])
 
 class IngredientsUpdate(UpdateView):
     template_name = 'update_ingredients.html'
-    model = IngredientsModel
+    model = IngredientsModel  
     fields =('name', 'compartment', 'numbers', 'unit', 'expiration_date')
     # success_url = reverse_lazy('ingre')
-    def get_success_url(self):
-        return reverse('ref_app:ingre', kwargs={'pk':self.object.ingredients_id})
+    def get_context_data(self, **kwargs):
+        current_user = self.request.user
+        context =  super().get_context_data(**kwargs)
+        context['cpmt_pk'] = self.kwargs['cpmt_pk']
+        if current_user.is_superuser:
+            return context
+        else: 
+            cpmt_pk = context['cpmt_pk']
+            context['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=cpmt_pk)
+            context['add_date_form'] = IngredientsCreateForm()   
+            return context
 
+    def get_success_url(self):
+        return reverse_lazy('cpmt_detail', kwargs={'pk' : self.kwargs["cpmt_pk"]})
 
 class IngredientsDelete(DeleteView):
     template_name = 'delete_ingredients.html'
     model = IngredientsModel
-    success_url = reverse_lazy('ingre')
+    # success_url = reverse_lazy('cpmt_detail')
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
+        return ctx
+    def get_success_url(self):
+        return reverse('cpmt_detail', kwargs={'pk':self.object.compartment.id})
 
-# Ingredientsの更新履歴保存View
-
-# class IngredientsHistoryCreate(CreateView):
-    template_name = 'create_ingre_history.html'
-    model = IngredientsHistoryModel
-    fields = ('update_user', 'ingre_name', 'ingre_numbers', 'ingre_unit')
-    success_url = reverse_lazy()
-    # 複数行の記載（条件分岐など）によってsuccess_urlが変わるときはget_success_urlを用いる
-
-    def form_valid(self, form):
-        """If the form is valid, save the associated model."""
-        self.object = form.save()
-        IngredientsHistoryModel.objects.create(
-            update_date = 'update_date',
-            update_user = 'update_user',
-            ingre_name =  'ingre_name',
-            ingre_numbers =  'ingre_numbers',
-            ingre_unit = 'ingre_unit',
-        )
-        # 自分で指定したModelに保存。（の中身を）
-        # Modelが持っていないカラムは指定できない。
-        # update,deleteViewでも同様の記載をする。
-        # deleteに見せかけたupdateviewを作成。
-        # CompartmentDetailViewで0個のIngredientsを表示させないようにする
-        return super().form_valid(form)
-    
-    # def form_valid(self, form):
-        # pk = self.kwargs.get('pk')
-        # ingredients = get_object_or_404(IngredientsModel, pk=pk)
-        # update_date = int(self.request.POST.get('update_date'))
-        # update_user = self.request.user
-        # ingre_name = self.request.POST.get('ingre_name')
-        # ingre_numbers = int(self.request.POST.get('ingre_numbers'))
-        # ingre_unit = self.request.POST.get('ingre_unit')
-# 
-        # history = form.save(commit=False)
-        # history.ingre = ingredients
-        # history.date = update_date
-        # history.user = update_user
-        # history.ingre_name = ingre_name
-        # history.ingre_num = ingre_numbers
-        # history.ingre_unit = ingre_unit
-        # history.save()
-        # return redirect('ingre', pk=pk)
-
+# Below here, these are InformataionViews.
 class InfomationList(ListView):
     template_name = 'info_list.html'
     model = InfomationModel
@@ -422,3 +314,111 @@ class Test(ListView):
 # MyModel._meta.get_fields()
 
 # ex. User._meta.get_fields()
+
+# Below here, these are not currently used.
+
+# class CompartmentList(ListView):
+    # template_name = 'compartment.html' #←　ref_door.html
+    # model = CompartmentModel
+    # def get_queryset(self):
+        # current_user = self.request.user
+        # current_user.id = self.request.user.id
+        # queryset6 = User.objects.filter(id=current_user.id)
+        # ref_owner = queryset6[0].id   
+        # if current_user.is_superuser:
+            # return CompartmentModel.objects.all().order_by('date').reverse()
+        # elif self.request.user.id == ref_owner:
+            # return CompartmentModel.objects.filter(refrigerator_id=self.kwargs['pk']).order_by('date').reverse()
+        # CompartmentModel.objects.filter(refrigerator_id=current_user.id, ).order_by('date').reverse()
+#   
+    # def get_cotext_data(self, **kwargs):
+        # current_user = self.request.user
+        # current_user.id = self.request.user.id
+        # queryset = User.objects.filter(id=current_user.id)
+        # ref_owner = queryset[0].id
+        # context = super().get_context_data(**kwargs)
+        # cpmt_list = CompartmentModel.objects.filter(id=self.kwargs['pk'])
+        # context['form'] = cpmt_list
+        # context["ref_pk"] = ref_owner
+        # return context
+
+    # アクセスしてきたユーザがその冷蔵庫の所有者か調べる(そうだったら処理継続、違ったら弾く)
+    # 仕込んだpkをもとに表示するCompartmentを絞る
+    # Added on2/23 CompartmentModel.refrigetaor_idが冷蔵庫所有者をしめす。
+
+    # get_context_data : viewsで指定した変数をhtmlへ渡すことができる
+    # ex)現在時刻など、自分が付加しないデータを渡せる
+    # def get_queryset(self):
+    #     query_set = self.model.objects.filter(doorname = '肉冷凍室')
+    #     return query_set
+    #     # あるユーザーの冷蔵庫一覧を取りたい時など。
+    #     # あるユーザーの、あるリクエストに対して指定する。等(今回はobject_list)
+    #     # ListViewの中の関数をチェックorGoogle.
+# class Ingredients(ListView):
+    # template_name = 'ingredients.html' 
+    # model = IngredientsModel
+    # def get_queryset(self):
+        # current_user = self.request.user
+        # if current_user.is_superuser:
+            # return IngredientsModel.objects.all().order_by('date').reverse()
+        # else:
+            # return IngredientsModel.objects.filter(id=current_user.id)
+    # Added on2/14
+    # def get_context_data(self, **kwargs):
+        # context = super().get_context_data(**kwargs)
+        # over_expiration_items = list()
+        # context['object_list'] はget_querysetの結果得られた IngredientsModelのlist
+        # for ingredient in context['object_list']:
+            # expiration = ingredient.expiration_date
+            # today = datetime.date.today()
+            # difference = expiration - today
+            # over_expiration = difference < datetime.timedelta(0)
+            # if over_expiration:
+                # over_expiration_items.append(ingredient)
+                # ingredient.is_over_expiration = True
+        # context['over_expiration_items'] = over_expiration_items
+        # context['passed_ing_pk'] = self.kwargs['pk']
+        # return context
+
+# class IngredientsHistoryCreate(CreateView):
+    # template_name = 'create_ingre_history.html'
+    # model = IngredientsHistoryModel
+    # fields = ('update_user', 'ingre_name', 'ingre_numbers', 'ingre_unit')
+    # success_url = reverse_lazy()
+    # 複数行の記載（条件分岐など）によってsuccess_urlが変わるときはget_success_urlを用いる
+
+    # def form_valid(self, form):
+        # """If the form is valid, save the associated model."""
+        # self.object = form.save()
+        # IngredientsHistoryModel.objects.create(
+            # update_date = 'update_date',
+            # update_user = 'update_user',
+            # ingre_name =  'ingre_name',
+            # ingre_numbers =  'ingre_numbers',
+            # ingre_unit = 'ingre_unit',
+        # )
+        # 自分で指定したModelに保存。（の中身を）
+        # Modelが持っていないカラムは指定できない。
+        # update,deleteViewでも同様の記載をする。
+        # deleteに見せかけたupdateviewを作成。
+        # CompartmentDetailViewで0個のIngredientsを表示させないようにする
+        # return super().form_valid(form)
+    
+    # def form_valid(self, form):
+        # pk = self.kwargs.get('pk')
+        # ingredients = get_object_or_404(IngredientsModel, pk=pk)
+        # update_date = int(self.request.POST.get('update_date'))
+        # update_user = self.request.user
+        # ingre_name = self.request.POST.get('ingre_name')
+        # ingre_numbers = int(self.request.POST.get('ingre_numbers'))
+        # ingre_unit = self.request.POST.get('ingre_unit')
+
+        # history = form.save(commit=False)
+        # history.ingre = ingredients
+        # history.date = update_date
+        # history.user = update_user
+        # history.ingre_name = ingre_name
+        # history.ingre_num = ingre_numbers
+        # history.ingre_unit = ingre_unit
+        # history.save()
+        # return redirect('ingre', pk=pk)

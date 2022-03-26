@@ -5,7 +5,7 @@
 <h1>{{refrigerator.name}}</h1>
 <form action='' method='POST'>{% csrf_token %}
     <input type="submit" value="削除する">
-    <a href="{% url 'ingre' object.pk %}" class="btn btn-primary">戻る</a>
+    <a href="{% url 'cpmt_detail' object.pk %}" class="btn btn-primary">戻る</a>
 </form>
 
 {% endblock content %}

@@ -20,6 +20,6 @@
     <a href="{% url 'delete_ingre' ing_s.pk %}" class="btn btn-danger">材料削除</a>
     <p></p>
     {% endfor %}
-    {% comment %}<a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">戻る</a>{% endcomment %}
+    <a href="{% url 'detail_ref' object.refrigerator.pk %}" class="btn btn-primary">戻る</a>
 
 {% endblock content %}

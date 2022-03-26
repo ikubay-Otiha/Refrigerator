@@ -1,9 +1,31 @@
 {% extends 'base.html' %}
+<head>
+    {{add_date_form.media}}
+</head>
 
 {% block content %}
 <h3 class="display-9">材料作成</h1>
 <form action='' method='POST'>{% csrf_token %}
-    {{form.as_p}} 
+    {% comment %}{{form.as_p}}{% endcomment %} 
+    <q>
+    {{ form.name.label }}
+    {{ form.name }}
+    </q><br>
+    <q>
+    {{ form.compartment.label }}
+    {{ form.compartment }}
+    </q><br>
+    <q>
+    {{form.numbers.label}}
+    {{form.numbers}}
+    </q><br>
+    <q>
+    {{form.unit.label}}
+    {{form.unit}}
+    </q><br>
+    <q>
+    {{add_date_form}}
+    </q><br>
     <!-- form = viewsにあるRefrigaratorCreateのformと同一 -->
     
     <!-- {% for num in numbers %} -->

@@ -16,12 +16,9 @@ urlpatterns = [
     path('update_cpmt/<int:pk>/', CompartmentUpdate.as_view(), name = 'update_cpmt'),
     path('delete_cpmt/<int:pk>/', CompartmentDelete.as_view(), name = 'delete_cpmt'),
 
-    path('ingre/<int:pk>/', Ingredients.as_view(), name='ingre'),
-    # path('ingre/<int:pk>/', IngredientsDetail.as_view(), name='ingre'),
     path('create_ingre/<int:cpmt_pk>', IngredientsCreate.as_view(), name= 'create_ingre'),
     path('update_ingre/<int:pk>/', IngredientsUpdate.as_view(), name= 'update_ingre'),
     path('delete_ingre/<int:pk>/', IngredientsDelete.as_view(), name= 'delete_ingre'),
-    # path('create_ingre_history/', IngredientsHistoryCreate.as_view(), name= 'create_history_ing'),
 
     path('info/', InfomationList.as_view(), name= 'info'),
     path('create_info/', InfomationCreate.as_view(), name= 'create_info'),

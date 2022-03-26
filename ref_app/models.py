@@ -83,7 +83,7 @@ class IngredientsHistoryModel(models.Model):
         verbose_name="賞味期限"
     )
     def __str___(self):
-        return f"{self.pk}/{self.ingre_name}"
+        return self.ingre_name
     # IngredientsModelとリレーションを組みましょう。
 
 class InfomationModel(models.Model):
