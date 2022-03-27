@@ -6,11 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <!-- for admin widgets -->
-    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css' %}"/>
+    
+    {% comment %}
+    <!-- <link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css' %}"/> -->
+    {% endcomment %}
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}"/>
 
     <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
-    {{add_date_form.media}}
+    {{add_date_form.media}}    
     <script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
     <script type="text/javascript" src="{% static 'admin/js/admin/RelatedObjectLookups.js' %}"></script>
     <!-- end for admin widgets -->

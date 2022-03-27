@@ -21,6 +21,8 @@
 </div>
 <a href="{% url 'update_cpmt' cpmt.pk %}" class="btn btn-info">冷蔵室更新</a>
 <a href="{% url 'delete_cpmt' cpmt.pk %}" class="btn btn-danger">冷蔵室削除</a>
+<p></p>
 {% endfor %}
+<a href="{% url 'ref' %}" class="btn btn-primary">戻る</a>
 
 {% endblock content %}

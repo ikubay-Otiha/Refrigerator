@@ -1,12 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3 class="display-9">冷蔵室更新</h1>
+<h3 class="display-9">冷蔵室更新</h3>
 <form action='' method='POST'>{% csrf_token %}
 {{form.as_p}} 
     <input type="submit" value="更新する">
     <a href="{% url 'detail_ref' object.refrigerator.pk %}" class="btn btn-primary">戻る</a>
-    {% comment %}<!-- 本当はこうしたい→<a href="{% url 'cpmt' object.refrigerator.pk %}" class="btn btn-primary">戻る</a> -->{% endcomment %}
 </form>
 
 {% endblock content %}

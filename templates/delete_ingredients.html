@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3 class="display-9">材料削除</h1>
-<h1>{{refrigerator.name}}</h1>
+<h3 class="display-9">材料削除</h3>
+<h2>{{object.name}}を削除します。履歴を含め全て削除されます。</h2>
+<h2>削除されたデータは復旧できません。それでもよろしいでしょうか？</h2>
 <form action='' method='POST'>{% csrf_token %}
     <input type="submit" value="削除する">
-    <a href="{% url 'cpmt_detail' object.pk %}" class="btn btn-primary">戻る</a>
+    <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-primary">戻る</a>
 </form>
 
 {% endblock content %}

@@ -51,6 +51,7 @@ class RefrigeratorDetail(DetailView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['name'] = self.request.user
+        # ctx['cpmt_numbers'] = 
         ctx['child_cpmt'] = CompartmentModel.objects.filter(refrigerator=self.get_object())
         return ctx
 
@@ -121,7 +122,7 @@ class CompartmentCreate(CreateView):
             return context
     def get_success_url(self):
         return reverse('detail_ref', kwargs={'pk':self.object.refrigerator_id})
-            
+
 class CompartmentUpdate(UpdateView):
     template_name = 'update_compartment.html'
     model = CompartmentModel
@@ -201,39 +202,38 @@ class IngredientsCreate(CreateView):
 
     def get_success_url(self):
         return reverse_lazy('cpmt_detail', kwargs={'pk' : self.kwargs["cpmt_pk"]})
-        # kwargs={'pk':self.object.id}
-        # return reverse_lazy('cpmt_detail', self.kwargs[cpmt_pk])
 
 class IngredientsUpdate(UpdateView):
     template_name = 'update_ingredients.html'
     model = IngredientsModel  
     fields =('name', 'compartment', 'numbers', 'unit', 'expiration_date')
-    # success_url = reverse_lazy('ingre')
     def get_context_data(self, **kwargs):
         current_user = self.request.user
+        cpmt_pk = self.object.compartment.all()
         context =  super().get_context_data(**kwargs)
-        context['cpmt_pk'] = self.kwargs['cpmt_pk']
+        context['cpmt_pk'] = cpmt_pk[0].pk
         if current_user.is_superuser:
             return context
         else: 
-            cpmt_pk = context['cpmt_pk']
-            context['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=cpmt_pk)
+            context['form'].fields['compartment'].queryset = self.object.compartment.all()
             context['add_date_form'] = IngredientsCreateForm()   
             return context
-
     def get_success_url(self):
-        return reverse_lazy('cpmt_detail', kwargs={'pk' : self.kwargs["cpmt_pk"]})
+        cpmt_pk = self.object.compartment.all()
+        return reverse_lazy('cpmt_detail', kwargs={'pk' : cpmt_pk[0].pk})
+        # kwargs={'pk':self.object.refrigerator_id}
 
 class IngredientsDelete(DeleteView):
     template_name = 'delete_ingredients.html'
     model = IngredientsModel
-    # success_url = reverse_lazy('cpmt_detail')
     def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
-        return ctx
+        cpmt_pk = self.object.compartment.all()
+        context =  super().get_context_data(**kwargs)
+        context['cpmt_pk'] = cpmt_pk[0].pk
+        return context
     def get_success_url(self):
-        return reverse('cpmt_detail', kwargs={'pk':self.object.compartment.id})
+        pk = self.object.compartment.all()
+        return reverse_lazy('cpmt_detail', kwargs={'pk' : pk[0].pk})
 
 # Below here, these are InformataionViews.
 class InfomationList(ListView):

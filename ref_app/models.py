@@ -64,7 +64,7 @@ class IngredientsHistoryModel(models.Model):
     ingre_name = models.OneToOneField(
         IngredientsModel,
         null=True, 
-        on_delete=models.PROTECT, 
+        on_delete=models.CASCADE, 
         verbose_name="食材名",
         related_name='history_ing_name'
     )
