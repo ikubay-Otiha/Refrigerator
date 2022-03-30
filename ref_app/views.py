@@ -6,7 +6,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.urls import reverse_lazy, reverse
 from django.db import models, IntegrityError
 from .models import IngredientsHistoryModel, RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
-from .forms import IngredientsCreateForm
+from .forms import IngredientsCreateForm, IngredientsUpdateForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 import datetime
@@ -53,6 +53,13 @@ class RefrigeratorDetail(DetailView):
         ctx['name'] = self.request.user
         # ctx['cpmt_numbers'] = 
         ctx['child_cpmt'] = CompartmentModel.objects.filter(refrigerator=self.get_object())
+        ing_quantity = list()
+        for i in ctx['child_cpmt']:
+            counts = i.id
+            ingre_quantity = IngredientsModel.objects.filter(compartment=counts).count()
+            ing_quantity.append(ingre_quantity)
+            continue
+        ctx['ing_quantity'] = ing_quantity
         return ctx
 
 class RefrigeratorCreate(CreateView):
@@ -155,7 +162,7 @@ class IngredientsDetail(DetailView):
 class IngredientsCreate(CreateView):
     template_name ='create_ingredients.html'
     model = IngredientsModel
-    fields =('name', 'compartment', 'numbers', 'unit', 'expiration_date')
+    fields =('name', 'user', 'compartment', 'numbers', 'unit', 'expiration_date')
     # success_url = reverse_lazy('cpmt_detail')
     def get_queryset(self):
         current_user = self.request.user
@@ -167,17 +174,17 @@ class IngredientsCreate(CreateView):
         elif self.request.user.id == cpmt_owner:
             return IngredientsModel.objects.filter(refrigerator_id=self.kwargs['pk'])
         return HttpResponseForbidden
-
     def get_context_data(self, **kwargs):
         current_user = self.request.user
         context = super().get_context_data(**kwargs)
         context['cpmt_pk'] = self.kwargs['cpmt_pk']
+        context['add_date_form'] = IngredientsCreateForm()
         if current_user.is_superuser:
             return context
         else:    
             cpmt_pk = context['cpmt_pk']
             context['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=cpmt_pk)
-            context['add_date_form'] = IngredientsCreateForm()
+            context['form'].fields['user'].queryset = User.objects.filter(id=self.request.user.id)
             return context
     
     def form_valid(self, form):
@@ -206,18 +213,33 @@ class IngredientsCreate(CreateView):
 class IngredientsUpdate(UpdateView):
     template_name = 'update_ingredients.html'
     model = IngredientsModel  
-    fields =('name', 'compartment', 'numbers', 'unit', 'expiration_date')
+    fields =('user', 'compartment', 'numbers', 'unit', 'expiration_date')
     def get_context_data(self, **kwargs):
         current_user = self.request.user
         cpmt_pk = self.object.compartment.all()
         context =  super().get_context_data(**kwargs)
         context['cpmt_pk'] = cpmt_pk[0].pk
+        context['add_date_form'] = IngredientsUpdateForm()
         if current_user.is_superuser:
             return context
         else: 
             context['form'].fields['compartment'].queryset = self.object.compartment.all()
-            context['add_date_form'] = IngredientsCreateForm()   
+            context['form'].fields['user'].queryset = User.objects.filter(id=self.request.user.id)
             return context
+    def form_valid(self, form):
+        """If the form is valid, save the associated model."""
+        self.object = form.save()
+        # ing_ins = form.instance
+        cpmt_id = form.cleaned_data['compartment'][0].id
+        IngredientsHistoryModel.objects.create(
+            # ingre_name = ing_ins,
+            ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
+            update_date = datetime.datetime.now(),
+            ingre_numbers = form.cleaned_data['numbers'],
+            ingre_unit = form.cleaned_data['unit'],
+            expiration_date = form.cleaned_data['expiration_date'],
+        )
+        return super().form_valid(form)
     def get_success_url(self):
         cpmt_pk = self.object.compartment.all()
         return reverse_lazy('cpmt_detail', kwargs={'pk' : cpmt_pk[0].pk})
@@ -232,8 +254,8 @@ class IngredientsDelete(DeleteView):
         context['cpmt_pk'] = cpmt_pk[0].pk
         return context
     def get_success_url(self):
-        pk = self.object.compartment.all()
-        return reverse_lazy('cpmt_detail', kwargs={'pk' : pk[0].pk})
+        cpmt_pk = self.object.compartment.all()
+        return reverse_lazy('cpmt_detail', kwargs={'pk' : cpmt_pk[0].pk})
 
 # Below here, these are InformataionViews.
 class InfomationList(ListView):

@@ -42,7 +42,11 @@ UNIT = (
 )
 class IngredientsModel(models.Model):
     name = models.CharField(max_length=200,verbose_name="材料名")
-    user = models.ForeignKey(User, null=True, on_delete=models.PROTECT)
+    user = models.ForeignKey(
+        User, 
+        null=True, 
+        on_delete=models.PROTECT,
+    )
     compartment = models.ManyToManyField(
         CompartmentModel,
         related_name='ing_cpmt',

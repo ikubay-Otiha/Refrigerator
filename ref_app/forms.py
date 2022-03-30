@@ -9,4 +9,12 @@ class IngredientsCreateForm(forms.ModelForm):
         widgets = {
             'expiration_date' : AdminDateWidget(),
         }
+
+class IngredientsUpdateForm(forms.ModelForm):
+    class Meta:
+        model = IngredientsModel
+        fields = ('expiration_date',)
+        widgets = {
+            'expiration_date' : AdminDateWidget(),
+        }
         

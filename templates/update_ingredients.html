@@ -3,7 +3,21 @@
 {% block content %}
 <h3 class="display-9">材料更新</h1>
 <form action='' method='POST'>{% csrf_token %}
-{{form.as_p}} 
+    
+    {{ form.compartment.label }}
+    {{ form.compartment }}
+    <br>
+    {{ form.user.label }}
+    {{ form.user }}
+    <br>
+    {{form.numbers.label}}
+    {{form.numbers}}
+    <br>
+    {{form.unit.label}}
+    {{form.unit}}
+    <br>
+    {{add_date_form}}
+    <br>
     <input type="submit" value="更新する">
     <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-primary">戻る</a>
 </form>

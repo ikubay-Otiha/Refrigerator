@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load boost %}
 
 {% block content %}
 <h1>{{ object.name }} 詳細画面</h1>
@@ -9,13 +10,14 @@
 <div class="alert alert-default">
     {{ cpmt.get_name_display }}
 </div>
-{% for cpmt in child_cpmt %}
+{% for cpmt, number in child_cpmt|zip:ing_quantity %}
     <a href="{% url 'cpmt_detail' cpmt.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
       <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">{{ cpmt.get_name_display }}</h5>
-        <small>{{ cpmt.date }}</small>
+        <h5 class="mb-1">{{ cpmt.get_name_display }}  
+          &nbsp;<font size="3">食材:{{number}}種類</font>
+        </h5>
+        <small>更新日:{{ cpmt.date }}</small>
       </div>
-      <p class="mb-1">{{ cpmt.category }}</p>
       <small>Something to describe.</small>
     </a>
 </div>

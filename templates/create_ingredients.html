@@ -7,25 +7,23 @@
 <h3 class="display-9">材料作成</h1>
 <form action='' method='POST'>{% csrf_token %}
     {% comment %}{{form.as_p}}{% endcomment %} 
-    <q>
     {{ form.name.label }}
     {{ form.name }}
-    </q><br>
-    <q>
+    <br>
     {{ form.compartment.label }}
     {{ form.compartment }}
-    </q><br>
-    <q>
+    <br>
+    {{ form.user.label }}
+    {{ form.user }}
+    <br>
     {{form.numbers.label}}
     {{form.numbers}}
-    </q><br>
-    <q>
+    <br>
     {{form.unit.label}}
     {{form.unit}}
-    </q><br>
-    <q>
+    <br>
     {{add_date_form}}
-    </q><br>
+    <br>
     <!-- form = viewsにあるRefrigaratorCreateのformと同一 -->
     
     <!-- {% for num in numbers %} -->
