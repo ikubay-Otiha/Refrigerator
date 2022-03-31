@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<h2>冷蔵庫一覧</h2>
 <a href="{% url 'create_ref' %}" class="btn btn-primary">冷蔵庫作成</a>
 <a href="{% url 'ref' %}" class="btn btn-primary">日付新しい順</a>
 <a href="{% url 'ref' %}" class="btn btn-primary">日付古い順</a>
 <a href="{% url 'ref' %}" class="btn btn-primary">名前順</a>
-
+<p></p>
 <div class="list-group">
     {% if request.path == "/ref/filter_date/" %}
     {% for refrigerator in filter_date %}

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load boost %}
 {% block header %}
 {% endblock header %}
 
@@ -8,8 +8,9 @@
 <a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">日付新しい順</a>
 <a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">日付古い順</a>
 <a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">名前順</a>
+<p></p>
 <div class="list-group">
-    {% for ing_s in child_ingredients %}
+    {% for ing_s,update in child_ingredients|zip:update_ingre %}
     {% if ing_s.numbers == 0 %}
     {% else %}
     <a class="list-group-item list-group-item-action active" aria-current="true">
@@ -17,7 +18,7 @@
         {% if ing_s.is_over_expiration %}style="background-color: red"{% endif %}>
         <h5 class="mb-1">食材名：{{ ing_s.name }}</h5>
         <small>数量：{{ ing_s.numbers }} {{ ing_s.get_unit_display }}</small>
-        <small>更新日時：{{ ing_s.date }} 更新者：{{ ing_s.user }}</small>
+        <small>更新日時：{{ update.updated_at }} 更新者：{{ ing_s.user }}</small>
       </div>
     </a>
 </div>

@@ -79,16 +79,16 @@ class IngredientsHistoryModel(models.Model):
         verbose_name="冷蔵室名",
         related_name='history_ing_cpmt'
     )
-    update_date = models.DateField(auto_now_add=True, verbose_name="更新日")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日")
     ingre_numbers = models.IntegerField(verbose_name="数量")
     ingre_unit = models.CharField(max_length=50, choices=UNIT, verbose_name="単位")
     expiration_date = models.DateField( 
         null=True, 
         verbose_name="賞味期限"
     )
-    def __str___(self):
-        return self.ingre_name
-    # IngredientsModelとリレーションを組みましょう。
+    def __str__(self):
+        return f"{self.ingre_name}の履歴"
 
 class InfomationModel(models.Model):
     title = models.CharField(max_length=50,verbose_name="タイトル")

@@ -1,15 +1,12 @@
 {% extends 'base.html' %}
 {% load boost %}
-
 {% block content %}
-<h1>{{ object.name }} 詳細画面</h1>
+<h2>{{ object.name }} 詳細画面</h2>
 <a href="{% url 'create_cpmt' object.pk %}" class="btn btn-primary">冷蔵室作成</a>
 <a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">日付新しい順</a>
 <a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">日付古い順</a>
 <a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">名前順</a>
-<div class="alert alert-default">
-    {{ cpmt.get_name_display }}
-</div>
+<p></p>
 {% for cpmt, number in child_cpmt|zip:ing_quantity %}
     <a href="{% url 'cpmt_detail' cpmt.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
       <div class="d-flex w-100 justify-content-between">

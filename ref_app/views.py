@@ -109,6 +109,7 @@ class CompartmentDetail(DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx['name'] = self.request.user
         ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
+        ctx['update_ingre'] = IngredientsHistoryModel.objects.filter(ingre_cpmt=self.get_object())
         ctx['get_cpmt'] = get_cpmt
         ctx['test'] = CompartmentModel.objects.filter(id=self.object.id)
         return ctx
@@ -195,18 +196,14 @@ class IngredientsCreate(CreateView):
         IngredientsHistoryModel.objects.create(
             ingre_name = ing_ins,
             ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
-            update_date = datetime.datetime.now(),
+            created_at = datetime.datetime.now(),
             ingre_numbers = form.cleaned_data['numbers'],
             ingre_unit = form.cleaned_data['unit'],
             expiration_date = form.cleaned_data['expiration_date'],
         )
         return super().form_valid(form)
         # 自分で指定したModelに右辺を保存。
-        # Modelが持っていないカラムは指定できない。
-        # update,deleteViewでも同様の記載をする。
         # deleteに見せかけたupdateviewを作成。
-        # CompartmentDetailViewで0個のIngredientsを表示させないようにする
-
     def get_success_url(self):
         return reverse_lazy('cpmt_detail', kwargs={'pk' : self.kwargs["cpmt_pk"]})
 
@@ -229,17 +226,27 @@ class IngredientsUpdate(UpdateView):
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
         self.object = form.save()
-        # ing_ins = form.instance
+        ing_ins = form.instance
         cpmt_id = form.cleaned_data['compartment'][0].id
-        IngredientsHistoryModel.objects.create(
-            # ingre_name = ing_ins,
-            ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
-            update_date = datetime.datetime.now(),
-            ingre_numbers = form.cleaned_data['numbers'],
-            ingre_unit = form.cleaned_data['unit'],
-            expiration_date = form.cleaned_data['expiration_date'],
-        )
-        return super().form_valid(form)
+        if ing_ins == IngredientsHistoryModel.objects.filter(ingre_name=ing_ins)[0].ingre_name:
+            IngredientsHistoryModel.objects.create(
+                ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
+                updated_at = datetime.datetime.now(),
+                ingre_numbers = form.cleaned_data['numbers'],
+                ingre_unit = form.cleaned_data['unit'],
+                expiration_date = form.cleaned_data['expiration_date'],
+            )
+            return super().form_valid(form)
+        else:
+            IngredientsHistoryModel.objects.create(
+                ingre_name = ing_ins,
+                ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
+                updated_at = datetime.datetime.now(),
+                ingre_numbers = form.cleaned_data['numbers'],
+                ingre_unit = form.cleaned_data['unit'],
+                expiration_date = form.cleaned_data['expiration_date'],
+            )
+            return super().form_valid(form)
     def get_success_url(self):
         cpmt_pk = self.object.compartment.all()
         return reverse_lazy('cpmt_detail', kwargs={'pk' : cpmt_pk[0].pk})
