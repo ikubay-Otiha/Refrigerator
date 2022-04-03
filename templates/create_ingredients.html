@@ -1,37 +1,20 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 <head>
     {{add_date_form.media}}
 </head>
 
 {% block content %}
-<h3 class="display-9">材料作成</h1>
-<form action='' method='POST'>{% csrf_token %}
-    {% comment %}{{form.as_p}}{% endcomment %} 
-    {{ form.name.label }}
-    {{ form.name }}
-    <br>
-    {{ form.compartment.label }}
-    {{ form.compartment }}
-    <br>
-    {{ form.user.label }}
-    {{ form.user }}
-    <br>
-    {{form.numbers.label}}
-    {{form.numbers}}
-    <br>
-    {{form.unit.label}}
-    {{form.unit}}
-    <br>
-    {{add_date_form}}
-    <br>
-    <!-- form = viewsにあるRefrigaratorCreateのformと同一 -->
-    
-    <!-- {% for num in numbers %} -->
-        <!-- <h1>{ itemlist[{{ forloop.counter0 }}].id}</h1> -->
-    <!-- {% endfor %} -->
-    
-    <input type="submit" value="作成する">
-    <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-primary">戻る</a>
+<h3 class="display-9">材料作成</h3>
+    <div class="col-sm">
+        <form method="post" action="" class="col-sm">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <input type="submit" value="login">
+        </form>
+        <button type="submit" class="btn btn-primary">作成する</button>
+        <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-secondary">戻る</a>
+    </div>
 </form>
 
 {% endblock content %}

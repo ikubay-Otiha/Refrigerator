@@ -7,7 +7,7 @@
 <a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">日付古い順</a>
 <a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">名前順</a>
 <p></p>
-{% for cpmt, number in child_cpmt|zip:ing_quantity %}
+{% for cpmt, number in child_cpmt_list|zip:ing_quantity %}
     <a href="{% url 'cpmt_detail' cpmt.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
       <div class="d-flex w-100 justify-content-between">
         <h5 class="mb-1">{{ cpmt.get_name_display }}  

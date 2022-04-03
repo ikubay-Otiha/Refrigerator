@@ -65,7 +65,7 @@ class IngredientsModel(models.Model):
         return self.name
 
 class IngredientsHistoryModel(models.Model):
-    ingre_name = models.OneToOneField(
+    ingre_name = models.ForeignKey(
         IngredientsModel,
         null=True, 
         on_delete=models.CASCADE, 
@@ -79,6 +79,7 @@ class IngredientsHistoryModel(models.Model):
         verbose_name="冷蔵室名",
         related_name='history_ing_cpmt'
     )
+    username = models.CharField(max_length=50,verbose_name="更新者")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日")
     ingre_numbers = models.IntegerField(verbose_name="数量")
