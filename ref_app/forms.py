@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 class IngredientsCreateForm(forms.ModelForm):
     class Meta:
         model = IngredientsModel
-        fields = ('__all__')
+        fields = ('expiration_date',)
         widgets = {
             'expiration_date' : forms.SelectDateWidget(),
         }
