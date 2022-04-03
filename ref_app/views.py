@@ -52,12 +52,13 @@ class RefrigeratorDetail(DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx['name'] = self.request.user
         # ctx['cpmt_numbers'] = 
-        ctx['child_cpmt_list'] = CompartmentModel.objects.filter(refrigerator=self.get_object())
+        ctx['child_cpmt'] = CompartmentModel.objects.filter(refrigerator=self.get_object())
         ing_quantity = list()
-        for cpmt in ctx['child_cpmt_list']:
-            cpmt_id = cpmt.id
-            ingre_quantity = IngredientsModel.objects.filter(compartment=cpmt_id, numbers__gt=0).count()
+        for i in ctx['child_cpmt']:
+            counts = i.id
+            ingre_quantity = IngredientsModel.objects.filter(compartment=counts).count()
             ing_quantity.append(ingre_quantity)
+            continue
         ctx['ing_quantity'] = ing_quantity
         return ctx
 
@@ -100,7 +101,6 @@ class RefrigeratorDelete(DeleteView):
     # success_url = reverse_lazy('ref', kwargs={'filter': 'filter'})
     # class-based版のredirect()と考える。リダイレクト先のURLを指定
 
-# Below here, these are IngredientsViews.
 class CompartmentDetail(DetailView):
     template_name = 'compartment_detail.html'
     model = CompartmentModel
@@ -108,8 +108,8 @@ class CompartmentDetail(DetailView):
         get_cpmt = self.get_object()
         ctx = super().get_context_data(**kwargs)
         ctx['name'] = self.request.user
-        ctx['child_ingredients_list'] = IngredientsModel.objects.filter(compartment=self.get_object())
-        ctx['updated_ingre'] = IngredientsHistoryModel.objects.filter(ingre_cpmt=self.get_object())
+        ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
+        ctx['update_ingre'] = IngredientsHistoryModel.objects.filter(ingre_cpmt=self.get_object())
         ctx['get_cpmt'] = get_cpmt
         ctx['test'] = CompartmentModel.objects.filter(id=self.object.id)
         return ctx
@@ -152,14 +152,12 @@ class CompartmentDelete(DeleteView):
     def get_success_url(self):
         return reverse('detail_ref', kwargs={'pk':self.object.refrigerator.id})
 
-
-# Below here, these are IngredientsViews.
 class IngredientsDetail(DetailView):
     template_name = 'ingredients.html'
     model = IngredientsModel
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        # ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
+        ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
         return ctx
 
 class IngredientsCreate(CreateView):
@@ -195,7 +193,6 @@ class IngredientsCreate(CreateView):
         self.object = form.save()
         ing_ins = form.instance
         cpmt_id = form.cleaned_data['compartment'][0].id
-        user = self.request.user
         IngredientsHistoryModel.objects.create(
             ingre_name = ing_ins,
             ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
@@ -203,7 +200,6 @@ class IngredientsCreate(CreateView):
             ingre_numbers = form.cleaned_data['numbers'],
             ingre_unit = form.cleaned_data['unit'],
             expiration_date = form.cleaned_data['expiration_date'],
-            username = user.username
         )
         return super().form_valid(form)
         # 自分で指定したModelに右辺を保存。
@@ -214,7 +210,7 @@ class IngredientsCreate(CreateView):
 class IngredientsUpdate(UpdateView):
     template_name = 'update_ingredients.html'
     model = IngredientsModel  
-    fields =('name', 'user', 'compartment', 'numbers', 'unit', 'expiration_date')
+    fields =('user', 'compartment', 'numbers', 'unit', 'expiration_date')
     def get_context_data(self, **kwargs):
         current_user = self.request.user
         cpmt_pk = self.object.compartment.all()
@@ -232,18 +228,29 @@ class IngredientsUpdate(UpdateView):
         self.object = form.save()
         ing_ins = form.instance
         cpmt_id = form.cleaned_data['compartment'][0].id
-        IngredientsHistoryModel.objects.create(
-            ingre_name = ing_ins,
-            ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
-            updated_at = datetime.datetime.now(),
-            ingre_numbers = form.cleaned_data['numbers'],
-            ingre_unit = form.cleaned_data['unit'],
-            expiration_date = form.cleaned_data['expiration_date'],
-        )
-        return super().form_valid(form)
+        if ing_ins == IngredientsHistoryModel.objects.filter(ingre_name=ing_ins)[0].ingre_name:
+            IngredientsHistoryModel.objects.create(
+                ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
+                updated_at = datetime.datetime.now(),
+                ingre_numbers = form.cleaned_data['numbers'],
+                ingre_unit = form.cleaned_data['unit'],
+                expiration_date = form.cleaned_data['expiration_date'],
+            )
+            return super().form_valid(form)
+        else:
+            IngredientsHistoryModel.objects.create(
+                ingre_name = ing_ins,
+                ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
+                updated_at = datetime.datetime.now(),
+                ingre_numbers = form.cleaned_data['numbers'],
+                ingre_unit = form.cleaned_data['unit'],
+                expiration_date = form.cleaned_data['expiration_date'],
+            )
+            return super().form_valid(form)
     def get_success_url(self):
         cpmt_pk = self.object.compartment.all()
         return reverse_lazy('cpmt_detail', kwargs={'pk' : cpmt_pk[0].pk})
+        # kwargs={'pk':self.object.refrigerator_id}
 
 class IngredientsDelete(DeleteView):
     template_name = 'delete_ingredients.html'

@@ -3,17 +3,19 @@
 {% block content %}
 <h3 class="display-9">材料更新</h1>
 <form action='' method='POST'>{% csrf_token %}
-    {{ form.name.label }}{{ form.name }}
+    
+    {{ form.compartment.label }}
+    {{ form.compartment }}
     <br>
-    {{ form.compartment.label }}{{ form.compartment }}
+    {{ form.user.label }}
+    {{ form.user }}
     <br>
-    {{ form.user.label }}{{ form.user }}
+    {{form.numbers.label}}
+    {{form.numbers}}
     <br>
-    {{form.numbers.label}}{{form.numbers}}
+    {{form.unit.label}}
+    {{form.unit}}
     <br>
-    {{form.unit.label}}{{form.unit}}
-    <br>
-    {% comment %}{{form.expiration_date.label}}{{form.expiration_date}}{% endcomment %}
     {{add_date_form}}
     <br>
     <input type="submit" value="更新する">
