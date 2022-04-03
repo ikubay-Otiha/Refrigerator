@@ -1,17 +1,56 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 <head>
     {{add_date_form.media}}
 </head>
 
 {% block content %}
 <h3 class="display-9">材料作成</h1>
-<form action='' method='POST'>{% csrf_token %}
-    {% comment %}{{form.as_p}}{% endcomment %} 
+
+<form action='' method='POST'>
+    {% csrf_token %}
+    <table>{{form.as_table}}</table>
+    {% comment %}    
+    <div class="form-group row">
+        <label for="{{ form.name.label }}" class="col-sm-3 col-form-label">
+            材料名
+        </label>
+        <div class="col-sm-9" input type="text" size="width:10px;">
+          {{ form.name|add_class:'form-control' }}
+          {% for error in form.username.errors %}
+            <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="{{ form.user.label }}" class="col-sm-3 col-form-label">User</label>
+        <div class="col-sm-9">
+          {{ form.user|add_class:'form-control' }}
+          {% for error in form.email.errors %}
+            <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="{{form.numbers.label}}" class="col-sm-3 col-form-label">数量</label>
+        <div class="col-sm-9">
+          {{ form.numbers|add_class:'form-control' }}
+          {% for error in form.password.errors %}
+            <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <hr>
+      <div class="form-group row">
+        <div class="col-sm">
+          <button type="submit" class="btn btn-info btn-block">登録</button>
+        </div>
+      </div>
+</form>
+<form>
+
     {{ form.name.label }}
     {{ form.name }}
-    <br>
-    {{ form.compartment.label }}
-    {{ form.compartment }}
     <br>
     {{ form.user.label }}
     {{ form.user }}
@@ -24,14 +63,16 @@
     <br>
     {{add_date_form}}
     <br>
+    {% endcomment %}
     <!-- form = viewsにあるRefrigaratorCreateのformと同一 -->
     
     <!-- {% for num in numbers %} -->
         <!-- <h1>{ itemlist[{{ forloop.counter0 }}].id}</h1> -->
     <!-- {% endfor %} -->
-    
-    <input type="submit" value="作成する">
-    <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-primary">戻る</a>
+    <div class="row">
+    <button type="submit" class="btn btn-primary">作成する</button>
+    <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-secondry">戻る</a>
+    </div>
 </form>
 
 {% endblock content %}

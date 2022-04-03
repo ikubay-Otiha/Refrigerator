@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'ref_app',
     'django_boost',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

@@ -66,7 +66,7 @@ class IngredientsModel(models.Model):
         return self.name
 
 class IngredientsHistoryModel(models.Model):
-    ingre_name = models.OneToOneField(
+    ingre_name = models.ForeignKey(
         IngredientsModel,
         null=True, 
         on_delete=models.CASCADE, 

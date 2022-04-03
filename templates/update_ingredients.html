@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
+<head>
+    {{add_date_form.media}}
+</head>
 
 {% block content %}
 <h3 class="display-9">材料更新</h1>
 <form action='' method='POST'>{% csrf_token %}
     
-    {{ form.compartment.label }}
-    {{ form.compartment }}
+    <table>{{form.as_table}}</table>
+    
+    {% comment %}
     <br>
     {{ form.user.label }}
     {{ form.user }}
@@ -18,6 +22,8 @@
     <br>
     {{add_date_form}}
     <br>
+    {% endcomment %}
+
     <input type="submit" value="更新する">
     <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-primary">戻る</a>
 </form>
