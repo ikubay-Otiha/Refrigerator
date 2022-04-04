@@ -14,23 +14,25 @@
     {% endfor %}
   </ul>
 {% endif %}
-
-<a href="{% url 'create_ingre' object.pk %}" class="btn btn-primary">材料追加</a>
+<h3>
+  {{ ingre_history.ingre_name }}の更新履歴
+  作成日：
+</h3>
+<!-- <a href="{% url 'create_ingre' object.pk %}" class="btn btn-primary">材料追加</a> -->
 <div class="list-group">
-    {% for ing_s in object_list %}
+    {% for ingre_history in ingre_histories_list %}
     <a class="list-group-item list-group-item-action active" aria-current="true">
       <div class="d-flex w-100 justify-content-between" 
         {% if ing_s.is_over_expiration %}style="background-color: red"{% endif %}>
-        <h5 class="mb-1">食材名：{{ ing_s.name }}</h5>
-        <small>数量：{{ ing_s.numbers }} {{ ing_s.get_unit_display }}</small>
-        <small>更新日時：{{ ing_s.date }}　更新者：{{ ing_s.user }}</small>
+        <h5 class="mb-1">No.:{{ ingre_history.id }}</h5>
+        <small>数量：{{ ingre_history.ingre_numbers }} {{ ingre_history.get_unit_display }}</small>
+        <small>更新日時：{{ ingre_history.updated_at }} 更新者：</small>
       </div>
     </a>
 </div>
-    <a href="{% url 'update_ingre' ing_s.pk %}" class="btn btn-info">材料更新</a>
-    <a href="{% url 'delete_ingre' ing_s.pk %}" class="btn btn-danger">材料削除</a>
     <p></p>
     {% endfor %}
-    <a href="{#}" class="btn btn-primary">戻る</a>
+  
+    <a href="{% url 'cpmt_detail' object.compartment.pk %}" class="btn btn-primary">戻る</a>
 
 {% endblock content %}

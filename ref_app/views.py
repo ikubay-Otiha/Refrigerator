@@ -51,14 +51,12 @@ class RefrigeratorDetail(DetailView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['name'] = self.request.user
-        # ctx['cpmt_numbers'] = 
-        ctx['child_cpmt'] = CompartmentModel.objects.filter(refrigerator=self.get_object())
+        ctx['child_cpmt_list'] = CompartmentModel.objects.filter(refrigerator=self.get_object())
         ing_quantity = list()
-        for i in ctx['child_cpmt']:
-            counts = i.id
-            ingre_quantity = IngredientsModel.objects.filter(compartment=counts).count()
+        for cpmt in ctx['child_cpmt_list']:
+            cpmt_id = cpmt.id
+            ingre_quantity = IngredientsModel.objects.filter(compartment=cpmt_id, numbers__gt=0).count()
             ing_quantity.append(ingre_quantity)
-            continue
         ctx['ing_quantity'] = ing_quantity
         return ctx
 
@@ -98,8 +96,11 @@ class RefrigeratorDelete(DeleteView):
     template_name = 'delete_refrigerator.html'
     model = RefrigeratorModel
     success_url = reverse_lazy('ref')
-    # success_url = reverse_lazy('ref', kwargs={'filter': 'filter'})
-    # class-based版のredirect()と考える。リダイレクト先のURLを指定
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['child_cpmt_list'] = CompartmentModel.objects.filter(refrigerator=self.get_object())
+        ctx['child_cpmt_numbers'] = ctx['child_cpmt_list'].filter().count()
+        return ctx
 
 class CompartmentDetail(DetailView):
     template_name = 'compartment_detail.html'
@@ -149,17 +150,14 @@ class CompartmentUpdate(UpdateView):
 class CompartmentDelete(DeleteView):
     template_name = 'delete_compartment.html'
     model = CompartmentModel
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['ingre_numbers'] = IngredientsModel.objects.filter(compartment=self.get_object()).count()
+        return ctx
     def get_success_url(self):
         return reverse('detail_ref', kwargs={'pk':self.object.refrigerator.id})
 
-class IngredientsDetail(DetailView):
-    template_name = 'ingredients.html'
-    model = IngredientsModel
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
-        return ctx
-
+# below here, these are IngredientsViews
 class IngredientsCreate(CreateView):
     template_name ='create_ingredients.html'
     model = IngredientsModel
@@ -247,6 +245,15 @@ class IngredientsDelete(DeleteView):
     def get_success_url(self):
         cpmt = self.object.compartment
         return reverse_lazy('cpmt_detail', kwargs={'pk' : cpmt.pk})
+
+class IngredientsDetail(DetailView):
+    template_name = 'ingredients_detail.html'
+    model = IngredientsModel
+    def get_context_data(self, **kwargs):
+        cpmt = self.object.compartment
+        context =  super().get_context_data(**kwargs)
+        context['ingre_histories_list'] = IngredientsHistoryModel.objects.filter(ingre_name=self.get_object())
+        return context
 
 # Below here, these are InformataionViews.
 class InfomationList(ListView):
