@@ -6,7 +6,7 @@
 {% block content %}
 {% if over_expiration_items|length > 0 %}
   <h3>賞味期限が切れている食材があります。</h3>
-  <!-- |←パイプ：フィルタリングをする。今回はリストの要素数が0以上ならば
+  <!-- |←パイプ:フィルタリングをする。今回はリストの要素数が0以上ならば
         over_expiration_items を表示　-->
   <ul>
     {% for item in over_expiration_items %}
@@ -14,25 +14,61 @@
     {% endfor %}
   </ul>
 {% endif %}
+<div class="d-flex w-100 justify-content-between">
 <h3>
-  {{ ingre_history.ingre_name }}の更新履歴
-  作成日：
+  {{ ingredientsmodel.name }}の更新履歴
 </h3>
-<!-- <a href="{% url 'create_ingre' object.pk %}" class="btn btn-primary">材料追加</a> -->
-<div class="list-group">
-    {% for ingre_history in ingre_histories_list %}
-    <a class="list-group-item list-group-item-action active" aria-current="true">
-      <div class="d-flex w-100 justify-content-between" 
-        {% if ing_s.is_over_expiration %}style="background-color: red"{% endif %}>
-        <h5 class="mb-1">No.:{{ ingre_history.id }}</h5>
-        <small>数量：{{ ingre_history.ingre_numbers }} {{ ingre_history.get_unit_display }}</small>
-        <small>更新日時：{{ ingre_history.updated_at }} 更新者：</small>
-      </div>
-    </a>
+<h5>
+  作成日：{{ ingredientsmodel.date }}
+</h5>
 </div>
+<a>並べ替え</a>
+<a href="{% url 'detail_ingre' object.pk %}" class="btn btn-primary">日付新しい順</a>
+<a href="{% url 'detail_ingre' object.pk %}" class="btn btn-primary">日付古い順</a>
+
+{% if ing_s.is_over_expiration %}style="background-color: red"{% endif %}
+<p></p>
+<div class="mx-100">
+  <table class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">No.</th>
+        <th scope="col">更新日時</th>
+        <th scope="col">更新者</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ingre_history in ingre_histories_list %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ ingre_history.updated_at }}</td>
+        <td>{{ ingre_history.user }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
     <p></p>
-    {% endfor %}
+    
   
     <a href="{% url 'cpmt_detail' object.compartment.pk %}" class="btn btn-primary">戻る</a>
 
 {% endblock content %}
+
+{% comment %}
+<!-- below here, wanted to create html -->
+
+{% for ingre_history in ingre_histories_list %}
+<div class="card border-info mb-3" style="max-width: 18rem;">
+  <div class="card-header">No.{{forloop.counter }}</div>
+  <div class="card-body">
+    <h6 class="card-subtitle mb-2 text-muted"></h6>
+    <p class="card-text">更新日時：{{ ingre_history.updated_at }}</p>
+  </div>
+  <div class="card-footer">更新者：{{ ingre_history.user }}</div>
+
+</div>
+{% endfor %}
+
+{% endcomment %}

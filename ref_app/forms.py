@@ -21,3 +21,7 @@ class IngredientsUpdateForm(forms.ModelForm):
             'expiration_date' : forms.SelectDateWidget(),
         }
         
+# class IngredientsCreateSelectForm(forms.ModelForm):
+#     class Meta:
+#         model = IngredientsModel
+#         fields = ('')

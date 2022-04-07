@@ -60,7 +60,8 @@ class IngredientsModel(models.Model):
         choices = UNIT,
         verbose_name="単位"
     )
-    date = models.DateField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     expiration_date = models.DateField(verbose_name="賞味期限")
     def __str__(self):
         return self.name
@@ -79,6 +80,11 @@ class IngredientsHistoryModel(models.Model):
         on_delete=models.PROTECT, 
         verbose_name="冷蔵室名",
         related_name='history_ing_cpmt'
+    )
+    user = models.ForeignKey(
+        User, 
+        null=True, 
+        on_delete=models.PROTECT,
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日")

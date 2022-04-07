@@ -2,7 +2,7 @@
 {% load boost %}
 {% block content %}
 
-<h2>{{ object.name }} 詳細画面</h2>
+<h2>{{ object.name }}一覧</h2>
 <a href="{% url 'create_cpmt' object.pk %}" class="btn btn-primary">冷蔵室作成</a>
 <a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">日付新しい順</a>
 <a href="{% url 'detail_ref' object.pk %}" class="btn btn-primary">日付古い順</a>

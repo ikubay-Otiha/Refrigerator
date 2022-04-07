@@ -3,12 +3,15 @@ from multiprocessing import cpu_count
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.views import generic
 from django.urls import reverse_lazy, reverse
 from django.db import models, IntegrityError
 from .models import IngredientsHistoryModel, RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
 from .forms import IngredientsCreateForm, IngredientsUpdateForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import datetime
 # Create your views here.
 # MyModel._meta.get_fields()
@@ -20,10 +23,11 @@ class HomeList(ListView):
         context['name'] = self.request.user
         context['filter'] = User.objects.all()
         return context
-class RefrigeratorList(ListView):
+class RefrigeratorList(LoginRequiredMixin, ListView):
     template_name = 'refrigerator.html'
     model = RefrigeratorModel
-    def get_queryset(self):
+    paginate_by = 3
+    def get_queryset(self, *args, **kwargs):
         current_user = self.request.user
         if current_user.is_superuser:
             return RefrigeratorModel.objects.all().order_by('date').reverse
@@ -162,32 +166,36 @@ class IngredientsCreate(CreateView):
     template_name ='create_ingredients.html'
     model = IngredientsModel
     fields =('name', 'user', 'compartment', 'numbers', 'unit', 'expiration_date')
-    def get_queryset(self):
-        current_user = self.request.user
-        current_user.id = self.request.user.id
-        queryset = User.objects.filter(id=current_user.id)
-        cpmt_owner = queryset[0].id 
-        if current_user.is_superuser:
-            return IngredientsModel.objects.all()
-        elif self.request.user.id == cpmt_owner:
-            return IngredientsModel.objects.filter(refrigerator_id=self.kwargs['pk'])
-        return HttpResponseForbidden
+    # def get_queryset(self):
+        # current_user = self.request.user
+        # current_user.id = self.request.user.id
+        # queryset = User.objects.filter(id=current_user.id)
+        # cpmt_owner = queryset[0].id 
+        # if current_user.is_superuser:
+            # return IngredientsModel.objects.all()
+        # elif self.request.user.id == cpmt_owner:
+            # return IngredientsModel.objects.filter(refrigerator_id=self.kwargs['cpmt_pk'])
+        # return HttpResponseForbidden
     def get_context_data(self, **kwargs):
         current_user = self.request.user
-        context = super().get_context_data(**kwargs)
-        context['cpmt_pk'] = self.kwargs['cpmt_pk']
-        context['add_date_form'] = IngredientsCreateForm()
+        ctx = super().get_context_data(**kwargs)
+        ctx['cpmt_pk'] = self.kwargs['cpmt_pk']
+        ctx['add_date_form'] = IngredientsCreateForm()
         if current_user.is_superuser:
-            return context
+            return ctx
         else:    
-            cpmt_pk = context['cpmt_pk']
-            context['form'].fields['user'].queryset = User.objects.filter(id=self.request.user.id)
-            return context
+            user_ref = RefrigeratorModel.objects.filter(id=current_user.id)
+            ctx['form'].fields['user'].queryset = User.objects.filter(id=self.request.user.id)
+            ctx['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=ctx['cpmt_pk'])
+            return ctx
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
         self.object = form.save()
         ing_ins = form.instance
         cpmt_id = form.cleaned_data['compartment'].id
+        post = form.save(commit=False)
+        post.user = self.request.user
+        post.save()
         IngredientsHistoryModel.objects.create(
             ingre_name = ing_ins,
             ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
@@ -325,6 +333,20 @@ def signupview(request):
         return render(request, 'signup.html', {})
     return redirect('login')
     # return render(request, 'login.html', {"you":request.POST.get('username_data')})
+
+def index(request):
+    RefrigeratorModel = RefrigeratorModel.objects.order_by('date').reverse()
+    paginator = Paginator(RefrigeratorModel, 2)
+    page = request.GET.get('page', 1)
+    try:
+        pages = paginator.page(page)
+    except PageNotAnInteger:
+        pages = paginator.page(1)
+    except:
+        pages = paginator.page(1)
+    ctx = {'pages':pages}
+    return render(request, 'test.html', ctx)
+
 
 class Test(ListView):
     template_name = "test.html"

@@ -7,24 +7,14 @@
 {% block content %}
 <h3 class="display-9">材料作成</h1>
 
-<form action='' method='POST'>
+<form action="" method='POST'>
     {% csrf_token %}
+    
+<table>
+  {{form.as_table}}
+</table>
+    
 
-    {{ form.name.label }}
-    {{ form.name }}
-    <br>
-    {{ form.user.label }}
-    {{ form.user }}
-    <br>
-    {{form.numbers.label}}
-    {{form.numbers}}
-    <br>
-    {{form.unit.label}}
-    {{form.unit}}
-    <br>
-    {{add_date_form}}
-    <br>
- 
     <!-- form = viewsにあるRefrigaratorCreateのformと同一 -->
     
     <!-- {% for num in numbers %} -->
@@ -32,13 +22,32 @@
     <!-- {% endfor %} -->
 
     <button type="submit" class="btn btn-primary">作成する</button>
-    <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-secondry">戻る</a>
+    <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-secondary">戻る</a>
 
 </form>
 
 {% endblock content %}
 
-{% comment %}    
+<!-- under construction -->
+{% comment %} 
+
+{{ form.name.label }}
+{{ form.name }}
+<br>
+{{ form.user.label }}
+{{ form.user }}
+<br>
+{{form.numbers.label}}
+{{form.numbers}}
+<br>
+{{form.unit.label}}
+{{form.unit}}
+<br>
+{{form.expiration_date.label}}
+{{form.expiration_date}}
+<br>
+
+
 <div class="form-group row">
     <label for="{{ form.name.label }}" class="col-sm-3 col-form-label">
         材料名
