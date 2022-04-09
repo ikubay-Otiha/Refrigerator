@@ -114,7 +114,8 @@ class CompartmentDetail(DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx['name'] = self.request.user
         ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
-        ctx['update_ingre'] = IngredientsHistoryModel.objects.filter(ingre_cpmt=self.get_object())
+        for ingredient in ctx['child_ingredients']:
+            ingredient.history = IngredientsHistoryModel.objects.filter(ingre_name=ingredient).order_by('-updated_at').first()
         ctx['get_cpmt'] = get_cpmt
         ctx['test'] = CompartmentModel.objects.filter(id=self.object.id)
         return ctx
@@ -200,6 +201,7 @@ class IngredientsCreate(CreateView):
             ingre_numbers = form.cleaned_data['numbers'],
             ingre_unit = form.cleaned_data['unit'],
             expiration_date = form.cleaned_data['expiration_date'],
+            user=self.request.user,
         )
         return super().form_valid(form)
         # 自分で指定したModelに右辺を保存。
