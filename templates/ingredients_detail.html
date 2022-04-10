@@ -50,7 +50,19 @@
 </div>
 
     <p></p>
-    
+  <div class="card-group">
+    {% for ingre_history in ingre_histories_list %}
+    <div class="card border-info mb-3" style="max-width: 18rem;">
+      <div class="card-header">No.{{forloop.counter }}</div>
+      <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted"></h6>
+        <p class="card-text">更新日時：{{ ingre_history.updated_at }}</p>
+      </div>
+      <div class="card-footer">更新者：{{ ingre_history.user }}</div>
+    </div>
+    {% endfor %}
+  </div>
+    <p></p>
   
     <a href="{% url 'cpmt_detail' object.compartment.pk %}" class="btn btn-primary">戻る</a>
 

@@ -30,9 +30,9 @@ class RefrigeratorList(LoginRequiredMixin, ListView):
     def get_queryset(self, *args, **kwargs):
         current_user = self.request.user
         if current_user.is_superuser:
-            return RefrigeratorModel.objects.all().order_by('date').reverse
+            return RefrigeratorModel.objects.all().order_by('date').reverse()
         else:
-            return RefrigeratorModel.objects.filter(user=current_user.id).order_by('date').reverse
+            return RefrigeratorModel.objects.filter(user=current_user.id).order_by('date').reverse()
         return HttpResponseForbidden
     def get_context_data(self, **kwargs):
         current_user = self.request.user
@@ -40,12 +40,12 @@ class RefrigeratorList(LoginRequiredMixin, ListView):
         if current_user.is_superuser:
             context['name'] = self.request.user
             context['filter_date'] = RefrigeratorModel.objects.all().order_by('date')
-            context['filter_name'] = RefrigeratorModel.objects.all().order_by('name').reverse
+            context['filter_name'] = RefrigeratorModel.objects.all().order_by('name').reverse()
             return context
         else:
             context['name'] = self.request.user
             context['filter_date'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('date')
-            context['filter_name'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('name').reverse
+            context['filter_name'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('name').reverse()
             return context
 
 class RefrigeratorDetail(DetailView):
@@ -114,7 +114,9 @@ class CompartmentDetail(DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx['name'] = self.request.user
         ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
-        ctx['update_ingre'] = IngredientsHistoryModel.objects.filter(ingre_cpmt=self.get_object())
+        for ingredients in ctx['child_ingredients']:
+            ingredients.history = IngredientsHistoryModel.objects.filter(ingre_name=ingredients).order_by('updated_at').first()
+        # ctx['update_ingre'] = IngredientsHistoryModel.objects.filter(ingre_cpmt=self.get_object())
         ctx['get_cpmt'] = get_cpmt
         ctx['test'] = CompartmentModel.objects.filter(id=self.object.id)
         return ctx
