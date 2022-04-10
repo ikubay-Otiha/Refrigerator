@@ -1,61 +1,71 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<h2>冷蔵庫一覧</h2>
-<a href="{% url 'create_ref' %}" class="btn btn-primary">冷蔵庫作成</a>
-<a href="{% url 'ref' %}" class="btn btn-primary">日付新しい順</a>
-<a href="{% url 'ref' %}" class="btn btn-primary">日付古い順</a>
-<a href="{% url 'ref' %}" class="btn btn-primary">名前順</a>
-<p></p>
-<div class="list-group">
-    {% if request.path == "/ref/filter_date/" %}
-    {% for refrigerator in filter_date %}
-    <a href="{% url 'detail_ref' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
-      <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">{{ refrigerator.name }}</h5>
-        <small>{{ refrigerator.date }}</small>
-      </div>
-      <small>Something to describe.</small>
-    </a>
-</div>
-    <a href="{% url 'update_ref' refrigerator.pk %}" class="btn btn-info">冷蔵庫更新</a>
-    <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">冷蔵庫削除</a>
+<link href="{% static 'base.css' %}" rel="stylesheet">
+
+<div class="body" href="{% static 'base.css' %}" rel="stylesheet">
+    <h2>冷蔵庫一覧</h2>
+        <a href="{% url 'create_ref' %}" class="btn btn-primary">冷蔵庫作成</a>
+        <a href="{% url 'ref' %}" class="btn btn-primary">日付新しい順</a>
+        <a href="{% url 'ref' %}" class="btn btn-primary">日付古い順</a>
+        <a href="{% url 'ref' %}" class="btn btn-primary">名前順</a>
     <p></p>
-    {% endfor %}
+    <div class="forloop" href="{% static 'base.css' %}" rel="stylesheet">
+        <div class="" href="{% static 'base.css' %}" rel="stylesheet">
+            {% if request.path == "/ref/filter_date/" %}
+            {% for refrigerator in filter_date %}
+                <a href="{% url 'detail_ref' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ refrigerator.name }}</h5>
+                    <small>{{ refrigerator.date }}</small>
+                  </div>
+                </a>
+                <a href="{% url 'update_ref' refrigerator.pk %}" class="btn btn-info">冷蔵庫更新</a>
+                <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">冷蔵庫削除</a>
+                <p></p>
+            {% endfor %}
+        </div>
+    </div>
 
-    {% elif request.path == "/ref/filter_name/" %}
-    {% for refrigerator in filter_name %}
-    <a href="{% url 'detail_ref' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
-      <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">{{ refrigerator.name }}</h5>
-        <small>{{ refrigerator.date }}</small>
-      </div>
-      <small>Something to describe.</small>
-    </a>
+    <div class="forloop" href="{% static 'base.css' %}" rel="stylesheet">
+        <div class="list-group" href="{% static 'base.css' %}" rel="stylesheet">
+            {% elif request.path == "/ref/filter_name/" %}
+            {% for refrigerator in filter_name %}
+            <a href="{% url 'detail_ref' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ refrigerator.name }}</h5>
+                <small>{{ refrigerator.date }}</small>
+              </div>
+              <small></small>
+            </a>
+        </div>
+        <a href="{% url 'update_ref' refrigerator.pk %}" class="btn btn-info">冷蔵庫更新</a>
+        <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">冷蔵庫削除</a>
+        <p></p>
+        {% endfor %}
+    </div>
+
+    <div class="forloop" href="{% static 'base.css' %}" rel="stylesheet">
+        <div class="list-group" href="{% static 'base.css' %}" rel="stylesheet">
+            {% else %}
+            {% for refrigerator in object_list %}
+            <a href="{% url 'detail_ref' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ refrigerator.name }}</h5>
+                <small>{{ refrigerator.date }}</small>
+              </div>
+              <!-- <p class="mb-1">{{ refrigerator.name }}</p> -->
+              <small></small>
+            </a>
+        </div>
+        <a href="{% url 'update_ref' refrigerator.pk %}" class="btn btn-info">冷蔵庫更新</a>
+        <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">冷蔵庫削除</a>
+        <p></p>
+        {% endfor %}
+        {% endif %}
+    </div>
 </div>
-    <a href="{% url 'update_ref' refrigerator.pk %}" class="btn btn-info">冷蔵庫更新</a>
-    <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">冷蔵庫削除</a>
-    <p></p>
-    {% endfor %}
-
-
-    {% else %}
-    {% for refrigerator in object_list %}
-    <a href="{% url 'detail_ref' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
-      <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">{{ refrigerator.name }}</h5>
-        <small>{{ refrigerator.date }}</small>
-      </div>
-      <!-- <p class="mb-1">{{ refrigerator.name }}</p> -->
-      <small>Something to describe.</small>
-    </a>
-</div>
-    <a href="{% url 'update_ref' refrigerator.pk %}" class="btn btn-info">冷蔵庫更新</a>
-    <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">冷蔵庫削除</a>
-    <p></p>
-    {% endfor %}
-    {% endif %}
-
 
     <nav aria-label="Page navigation example">
 
@@ -94,7 +104,10 @@
   </nav>
 
 <p></p>
-<a href="{% url 'home' %}" class="btn btn-primary">戻る</a>
+<div class="back" href="{% static 'base.css' %}" rel="stylesheet">
+    <a href="{% url 'home' %}" class="btn btn-primary">戻る</a>
+</div>
+
 {% endblock content %}
 
 {% comment %}

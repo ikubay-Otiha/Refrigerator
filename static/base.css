@@ -1,0 +1,28 @@
+
+.list-group {
+    margin: 20px;
+    padding: 10px;
+    font-size: xx-large;
+}
+
+.body {
+    margin: 20px;
+}
+
+.back {
+    margin: 20px;
+}
+
+.text {
+    font-size: large;
+    color: red;
+    margin: 30px;
+}
+
+.mb-1 {
+    padding: 10px;
+}
+
+/* body { */
+    /* background-color: aqua; */
+/* } */
