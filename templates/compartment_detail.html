@@ -25,7 +25,7 @@
           {% if ing_s.is_over_expiration %}style="background-color: red"{% endif %}>
           <h5 class="mb-1">食材名：{{ ing_s.name }}</h5>
           <small>数量：{{ ing_s.numbers }} {{ ing_s.get_unit_display }}</small>
-          <small>更新日時：{{ ings_s.history.updated_at }} 更新者：{{ ing_s.history.user }}</small>
+          <small>更新日時：{{ ing_s.history.updated_at }} 更新者：{{ ing_s.history.user }}</small>
         </div>
       </a>
 </div>

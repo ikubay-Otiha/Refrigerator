@@ -1,5 +1,4 @@
 from datetime import datetime
-from multiprocessing import cpu_count
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
@@ -115,7 +114,7 @@ class CompartmentDetail(DetailView):
         ctx['name'] = self.request.user
         ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
         for ingredients in ctx['child_ingredients']:
-            ingredients.history = IngredientsHistoryModel.objects.filter(ingre_name=ingredients).order_by('updated_at').first()
+            ingredients.history = IngredientsHistoryModel.objects.filter(ingre_name=ingredients).order_by('-updated_at').first()
         # ctx['update_ingre'] = IngredientsHistoryModel.objects.filter(ingre_cpmt=self.get_object())
         ctx['get_cpmt'] = get_cpmt
         ctx['test'] = CompartmentModel.objects.filter(id=self.object.id)
@@ -167,7 +166,7 @@ class CompartmentDelete(DeleteView):
 class IngredientsCreate(CreateView):
     template_name = 'create_ingredients.html'
     model = IngredientsModel
-    form_class = IngredientsCreateForm
+    fields =('name', 'user', 'compartment', 'numbers', 'unit', 'expiration_date')
 
     # def get_queryset(self):
         # current_user = self.request.user
@@ -183,6 +182,8 @@ class IngredientsCreate(CreateView):
         current_user = self.request.user
         ctx = super().get_context_data(**kwargs)
         ctx['cpmt_pk'] = self.kwargs['cpmt_pk']
+        ctx['add_date_form'] = IngredientsCreateForm()
+
         if current_user.is_superuser:
             return ctx
         else:    
@@ -193,11 +194,15 @@ class IngredientsCreate(CreateView):
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
         self.object = form.save()
-        ing_ins = self.object
-        cpmt = self.object.compartment
+        ing_ins = form.instance
+        cpmt_id = form.cleaned_data['compartment'].id
+        post = form.save(commit=False)
+        post.user = self.request.user
+        post.save()
         IngredientsHistoryModel.objects.create(
             ingre_name = ing_ins,
-            ingre_cpmt = cpmt,
+            user = self.request.user,
+            ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
             created_at = datetime.datetime.now(),
             ingre_numbers = form.cleaned_data['numbers'],
             ingre_unit = form.cleaned_data['unit'],
@@ -209,11 +214,7 @@ class IngredientsCreate(CreateView):
     def get_success_url(self):
         return reverse_lazy('cpmt_detail', kwargs={'pk' : self.kwargs["cpmt_pk"]})
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
-        kwargs['compartment_pk'] = self.kwargs['cpmt_pk']
-        return kwargs
+
 
 class IngredientsUpdate(UpdateView):
     template_name = 'update_ingredients.html'
@@ -237,6 +238,7 @@ class IngredientsUpdate(UpdateView):
         cpmt_id = form.cleaned_data['compartment'].id
         IngredientsHistoryModel.objects.create(
             ingre_name = ing_ins,
+            user = self.request.user,
             ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
             updated_at = datetime.datetime.now(),
             ingre_numbers = form.cleaned_data['numbers'],
