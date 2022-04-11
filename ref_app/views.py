@@ -60,6 +60,7 @@ class RefrigeratorDetail(DetailView):
             cpmt_id = cpmt.id
             ingre_quantity = IngredientsModel.objects.filter(compartment=cpmt_id, numbers__gt=0).count()
             ing_quantity.append(ingre_quantity)
+            cpmt.ingre_history = IngredientsHistoryModel.objects.filter(ingre_cpmt=cpmt).order_by('-updated_at').first()
         ctx['ing_quantity'] = ing_quantity
         return ctx
 
@@ -166,43 +167,29 @@ class CompartmentDelete(DeleteView):
 class IngredientsCreate(CreateView):
     template_name = 'create_ingredients.html'
     model = IngredientsModel
-    fields =('name', 'user', 'compartment', 'numbers', 'unit', 'expiration_date')
-
-    # def get_queryset(self):
-        # current_user = self.request.user
-        # current_user.id = self.request.user.id
-        # queryset = User.objects.filter(id=current_user.id)
-        # cpmt_owner = queryset[0].id 
-        # if current_user.is_superuser:
-            # return IngredientsModel.objects.all()
-        # elif self.request.user.id == cpmt_owner:
-            # return IngredientsModel.objects.filter(refrigerator_id=self.kwargs['cpmt_pk'])
-        # return HttpResponseForbidden
+    form_class = IngredientsCreateForm
     def get_context_data(self, **kwargs):
         current_user = self.request.user
         ctx = super().get_context_data(**kwargs)
         ctx['cpmt_pk'] = self.kwargs['cpmt_pk']
-        ctx['add_date_form'] = IngredientsCreateForm()
 
         if current_user.is_superuser:
             return ctx
         else:    
             user_ref = RefrigeratorModel.objects.filter(id=current_user.id)
-            ctx['form'].fields['user'].queryset = User.objects.filter(id=self.request.user.id)
-            ctx['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=ctx['cpmt_pk'])
+            # user, compartment はfieldsに記載していない為KeyErrorになる。
+            # ctx['form'].fields['user'].queryset = User.objects.filter(id=self.request.user.id)
+            # ctx['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=ctx['cpmt_pk'])
             return ctx
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
         self.object = form.save()
-        ing_ins = form.instance
-        cpmt_id = form.cleaned_data['compartment'].id
-        post = form.save(commit=False)
-        post.user = self.request.user
-        post.save()
+        ing_ins = self.object
+        cpmt = self.object.compartment
         IngredientsHistoryModel.objects.create(
             ingre_name = ing_ins,
             user = self.request.user,
-            ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
+            ingre_cpmt = cpmt,
             created_at = datetime.datetime.now(),
             ingre_numbers = form.cleaned_data['numbers'],
             ingre_unit = form.cleaned_data['unit'],
@@ -214,6 +201,11 @@ class IngredientsCreate(CreateView):
     def get_success_url(self):
         return reverse_lazy('cpmt_detail', kwargs={'pk' : self.kwargs["cpmt_pk"]})
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['compartment_pk'] = self.kwargs['cpmt_pk']
+        return kwargs
 
 
 class IngredientsUpdate(UpdateView):
