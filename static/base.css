@@ -17,6 +17,20 @@
     padding: 40px;
 }
 
+#test-title {
+    color: beige;
+    font-size: xx-large;
+    font-family: cursive;
+    background-color: black;
+
+}
+
+#test-text {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    padding: 30px;
+}
+
+
 /* body { */
     /* background-color: aqua; */
 /* } */
