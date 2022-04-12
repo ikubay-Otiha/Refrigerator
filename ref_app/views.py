@@ -116,7 +116,13 @@ class CompartmentDetail(DetailView):
         ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
         for ingredients in ctx['child_ingredients']:
             ingredients.history = IngredientsHistoryModel.objects.filter(ingre_name=ingredients).order_by('-updated_at').first()
-        # ctx['update_ingre'] = IngredientsHistoryModel.objects.filter(ingre_cpmt=self.get_object())
+            exp_date = ingredients.expiration_date
+            today = datetime.date.today()
+            diff = exp_date - today
+            over_exp = diff < datetime.timedelta(0)
+            if over_exp:
+                ingredients.expiration_date
+                ingredients.is_over_exp = True 
         ctx['get_cpmt'] = get_cpmt
         ctx['test'] = CompartmentModel.objects.filter(id=self.object.id)
         return ctx
@@ -259,7 +265,7 @@ class IngredientsDetail(DetailView):
     def get_context_data(self, **kwargs):
         cpmt = self.object.compartment
         context =  super().get_context_data(**kwargs)
-        context['ingre_histories_list'] = IngredientsHistoryModel.objects.filter(ingre_name=self.get_object())
+        context['ingre_histories_list'] = IngredientsHistoryModel.objects.filter(ingre_name=self.get_object()).order_by('-updated_at')
         return context
 
 # Below here, these are InformataionViews.

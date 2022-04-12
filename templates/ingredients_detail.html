@@ -19,20 +19,21 @@
   {{ ingredientsmodel.name }}の更新履歴
 </h3>
 <h5>
-  作成日：{{ ingredientsmodel.date }}
+  作成日：{{ ingredientsmodel.created_at }}
 </h5>
 </div>
 <a>並べ替え</a>
-<a href="{% url 'detail_ingre' object.pk %}" class="btn btn-primary">日付新しい順</a>
-<a href="{% url 'detail_ingre' object.pk %}" class="btn btn-primary">日付古い順</a>
+<a href="{% url 'detail_ingre' object.pk %}" class="btn btn-outline-primary">日付新しい順</a>
+<a href="{% url 'detail_ingre' object.pk %}" class="btn btn-outline-primary">日付古い順</a>
 
-{% if ing_s.is_over_expiration %}style="background-color: red"{% endif %}
 <p></p>
 <div class="mx-100">
   <table class="table table-striped table-bordered">
     <thead>
       <tr>
         <th scope="col">No.</th>
+        <th scope="col">数量</th>
+        <th scope="col">賞味期限</th>
         <th scope="col">更新日時</th>
         <th scope="col">更新者</th>
       </tr>
@@ -41,6 +42,8 @@
       {% for ingre_history in ingre_histories_list %}
       <tr>
         <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ ingre_history.ingre_numbers}}{{ ingre_history.get_ingre_unit_display }}</td>
+        <td>{{ ingre_history.expiration_date }}</td>
         <td>{{ ingre_history.updated_at }}</td>
         <td>{{ ingre_history.user }}</td>
       </tr>
@@ -50,18 +53,23 @@
 </div>
 
     <p></p>
+  {% comment %}
   <div class="card-group">
     {% for ingre_history in ingre_histories_list %}
-    <div class="card border-info mb-3" style="max-width: 18rem;">
-      <div class="card-header">No.{{forloop.counter }}</div>
-      <div class="card-body">
-        <h6 class="card-subtitle mb-2 text-muted"></h6>
-        <p class="card-text">更新日時：{{ ingre_history.updated_at }}</p>
+    
+    <div class="d-flex align-content-between border-info flex-wrap">
+      <div class="card border-info mb-3 flex-wrap" style="max-width: 18rem;">
+        <div class="card-header">No.{{forloop.counter }}</div>
+          <div class="card-body">
+            <h6 class="card-subtitle mb-2 text-muted"></h6>
+            <p class="card-text">更新日時：{{ ingre_history.updated_at }}</p>
+          </div>
+        <div class="card-footer">更新者：{{ ingre_history.user }}</div>
       </div>
-      <div class="card-footer">更新者：{{ ingre_history.user }}</div>
     </div>
     {% endfor %}
   </div>
+  {% endcomment %}
     <p></p>
   
     <a href="{% url 'cpmt_detail' object.compartment.pk %}" class="btn btn-primary">戻る</a>

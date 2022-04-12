@@ -17,7 +17,7 @@
             {% if request.path == "/ref/filter_date/" %}
             {% for refrigerator in filter_date %}
                 <a href="{% url 'detail_ref' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
-                  <div class="d-flex w-100 justify-content-between">
+                  <div class="d-flex w-80 justify-content-between">
                     <h5 class="mb-1">{{ refrigerator.name }}</h5>
                     <small>{{ refrigerator.date }}</small>
                   </div>
