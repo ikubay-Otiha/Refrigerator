@@ -14,41 +14,6 @@
     
     <div class="forloop" href="{% static 'base.css' %}" rel="stylesheet">
         <div class="" href="{% static 'base.css' %}" rel="stylesheet">
-            {% if request.path == "/ref/filter_date/" %}
-            {% for refrigerator in filter_date %}
-                <a href="{% url 'detail_ref' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
-                  <div class="d-flex w-80 justify-content-between">
-                    <h5 class="mb-1">{{ refrigerator.name }}</h5>
-                    <small>{{ refrigerator.date }}</small>
-                  </div>
-                </a>
-                <a href="{% url 'update_ref' refrigerator.pk %}" class="btn btn-info">冷蔵庫更新</a>
-                <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">冷蔵庫削除</a>
-                <p></p>
-            {% endfor %}
-        </div>
-    </div>
-
-    <div class="forloop" href="{% static 'base.css' %}" rel="stylesheet">
-        <div class="" href="{% static 'base.css' %}" rel="stylesheet">
-            {% elif request.path == "/ref/filter_name/" %}
-            {% for refrigerator in filter_name %}
-                <a href="{% url 'detail_ref' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
-                  <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">{{ refrigerator.name }}</h5>
-                    <small>{{ refrigerator.date }}</small>
-                  </div>
-                </a>
-            <a href="{% url 'update_ref' refrigerator.pk %}" class="btn btn-info">冷蔵庫更新</a>
-            <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">冷蔵庫削除</a>
-            <p></p>
-            {% endfor %}
-        </div>
-    </div>
-
-    <div class="forloop" href="{% static 'base.css' %}" rel="stylesheet">
-        <div class="" href="{% static 'base.css' %}" rel="stylesheet">
-            {% else %}
             {% for refrigerator in object_list %}
                 <a href="{% url 'detail_ref' refrigerator.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
                     <div class="d-flex w-100 justify-content-between">
@@ -60,7 +25,6 @@
             <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">冷蔵庫削除</a>
             <p></p>
             {% endfor %}
-            {% endif %}
         </div>
     </div>
 </div>

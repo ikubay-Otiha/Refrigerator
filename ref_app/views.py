@@ -36,23 +36,10 @@ class RefrigeratorList(LoginRequiredMixin, ListView):
         elif sort_order_from_url == 'def':
             sort_order = 'date'
 
-            if current_user.is_superuser:
-                return RefrigeratorModel.objects.all().order_by(sort_order)
-            else:
-                return RefrigeratorModel.objects.filter(user=current_user.id).order_by(sort_order)
-    # def get_context_data(self, **kwargs):
-        # current_user = self.request.user
-        # context = super().get_context_data(**kwargs)
-        # if current_user.is_superuser:
-            # context['name'] = self.request.user
-            # context['filter_date'] = RefrigeratorModel.objects.all().order_by('date')
-            # context['filter_name'] = RefrigeratorModel.objects.all().order_by('name').reverse()
-            # return context
-        # else:
-            # context['name'] = self.request.user
-            # context['filter_date'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('date')
-            # context['filter_name'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('name').reverse()
-            # return context
+        if current_user.is_superuser:
+            return RefrigeratorModel.objects.all().order_by(sort_order)
+        else:
+            return RefrigeratorModel.objects.filter(user=current_user.id).order_by(sort_order)
 
 class RefrigeratorDetail(DetailView):
     template_name = 'refrigerator_detail.html'
@@ -190,9 +177,6 @@ class IngredientsCreate(CreateView):
             return ctx
         else:    
             user_ref = RefrigeratorModel.objects.filter(id=current_user.id)
-            # user, compartment はfieldsに記載していない為KeyErrorになる。
-            # ctx['form'].fields['user'].queryset = User.objects.filter(id=self.request.user.id)
-            # ctx['form'].fields['compartment'].queryset = CompartmentModel.objects.filter(id=ctx['cpmt_pk'])
             return ctx
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
