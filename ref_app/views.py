@@ -28,24 +28,31 @@ class RefrigeratorList(LoginRequiredMixin, ListView):
     paginate_by = 3
     def get_queryset(self, *args, **kwargs):
         current_user = self.request.user
-        if current_user.is_superuser:
-            return RefrigeratorModel.objects.all().order_by('date').reverse()
-        else:
-            return RefrigeratorModel.objects.filter(user=current_user.id).order_by('date').reverse()
-        return HttpResponseForbidden
-    def get_context_data(self, **kwargs):
-        current_user = self.request.user
-        context = super().get_context_data(**kwargs)
-        if current_user.is_superuser:
-            context['name'] = self.request.user
-            context['filter_date'] = RefrigeratorModel.objects.all().order_by('date')
-            context['filter_name'] = RefrigeratorModel.objects.all().order_by('name').reverse()
-            return context
-        else:
-            context['name'] = self.request.user
-            context['filter_date'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('date')
-            context['filter_name'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('name').reverse()
-            return context
+        sort_order_from_url = self.kwargs['filter']
+        if sort_order_from_url == 'filter_name':
+            sort_order = 'name'
+        elif sort_order_from_url == 'filter_date':
+            sort_order = '-date'
+        elif sort_order_from_url == 'def':
+            sort_order = 'date'
+
+            if current_user.is_superuser:
+                return RefrigeratorModel.objects.all().order_by(sort_order)
+            else:
+                return RefrigeratorModel.objects.filter(user=current_user.id).order_by(sort_order)
+    # def get_context_data(self, **kwargs):
+        # current_user = self.request.user
+        # context = super().get_context_data(**kwargs)
+        # if current_user.is_superuser:
+            # context['name'] = self.request.user
+            # context['filter_date'] = RefrigeratorModel.objects.all().order_by('date')
+            # context['filter_name'] = RefrigeratorModel.objects.all().order_by('name').reverse()
+            # return context
+        # else:
+            # context['name'] = self.request.user
+            # context['filter_date'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('date')
+            # context['filter_name'] = RefrigeratorModel.objects.filter(user=current_user.id).order_by('name').reverse()
+            # return context
 
 class RefrigeratorDetail(DetailView):
     template_name = 'refrigerator_detail.html'

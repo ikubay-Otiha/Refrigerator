@@ -18,11 +18,13 @@
     {% endif %}
 
     {% for over_exp_ing in child_ingredients %}
-      {% if forloop.first %}
+      {% if over_exp_ing.is_over_exp %}
+        {% if forloop.first %}
         <h3 style="font-weight: bold; color: red">賞味期限切れの食材があります！</h3>
+        {% endif %}
         <li>{{ over_exp_ing.name }}</li>
       {% else %}
-        <li>{{ over_exp_ing.name }}</li>
+
       {% endif %}
     {% endfor %}
   </h4>
