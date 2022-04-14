@@ -1,1 +1,3 @@
 *.pyc
+refrigerator/local_settings.py
+local_settings.py
