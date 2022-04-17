@@ -1,3 +1,19 @@
+/* そのままctr+Rしてもブラウザに反映されない時は、shift+crl+R */
+#greeting {
+    margin: 10px;
+    font-size: large;
+    font-weight: bold;
+}
+
+#htu {
+    margin: 20px;
+}
+
+#showuser {
+    color: black;
+    font-weight: bold;
+    margin-right: 10px;
+}
 
 .list-group {
     margin: 30px;

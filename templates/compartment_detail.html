@@ -12,47 +12,69 @@
   <a href="{% url 'detail_ref' object.pk %}" class="btn btn-outline-primary">名前順</a>
   <p></p>
 
-  <h4>
-    {% if child_ingredients|length == 0 %}
-    {{ object.get_name_display }}には食材がありません。材料追加ボタンから食材を追加しましょう！
-    {% endif %}
-
-    {% for over_exp_ing in child_ingredients %}
-      {% if over_exp_ing.is_over_exp %}
-        {% if forloop.first %}
+  <div class="d-flex justify-content-around">
+    <!--　賞味期限切れアラーム -->
+    <div class="over_exp">
+      {% if over_expiration_true == True %}
         <h3 style="font-weight: bold; color: red">賞味期限切れの食材があります！</h3>
-        {% endif %}
-        <li>{{ over_exp_ing.name }}</li>
       {% else %}
-
       {% endif %}
-    {% endfor %}
-  </h4>
+      {% for over_exp_ing in child_ingredients %}
+        {% if over_exp_ing.is_over_exp %}
+          <li>{{ over_exp_ing.name }}</li>
+        {% else %}
+
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="alarm_numbers">
+      {% for alarm_number in child_ingredients %}
+        {% if forloop.first %}
+         <h3 style="font-weight: bold; color: red">
+          残り少ない材料があります！
+        </h3>
+        {% else %}
+        {% endif %}
+      {% endfor %}
+      {% for alarm_number in child_ingredients %}
+        {% if alarm_number.numbers <= 1 %}
+          <li>{{ alarm_number.name }} : {{ alarm_number.numbers }}{{ alarm_number.get_unit_display }}</li>
+        {% else %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
   <p></p>
   
-  <div class="d-flex align-content-between border-info flex-wrap">
     <div class="forloop" href="{% static 'base.css' %}" rel="stylesheet"></div>
-          {% for ing_s in child_ingredients %}
-            {% if ing_s.numbers == 0 %}
-            {% else %}
-              <a href="{% url 'detail_ingre' ing_s.pk %}" class="list-group-item list-group-item-action active" aria-current="true" style="max-width: 1200px;">
-                <div class="d-flex w-100 justify-content-between" {% if ing_s.is_over_exp %}style="font-weight: bold; color: yellow"{% endif %}>
-                  <middle>食材名：{{ ing_s.name }}</middle>
-                  <small>数量：{{ ing_s.numbers }} {{ ing_s.get_unit_display }}</small>
-                  <small>賞味期限：{{ ing_s.expiration_date }}</small>
-                  <small>更新日時：{{ ing_s.history.updated_at }} 更新者：{{ ing_s.user }}</small>
-                </div>
-              </a>
-      <br>
-      <a href="{% url 'update_ingre' ing_s.pk %}" class="btn btn-info">材料更新</a>
-      <br>
-      <a href="{% url 'delete_ingre' ing_s.pk %}" class="btn btn-danger">材料削除</a>
-      <p></p>
-            {% endif %}
-<p></p>
-          {% endfor %}
-      </div>
-  </div>
+        {% for ing_s in child_ingredients %}
+          {% if ing_s.numbers == 0 %}
+          {% else %}
+            <a href="{% url 'detail_ingre' ing_s.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
+              <div class="d-flex w-100 justify-content-between" {% if ing_s.is_over_exp %}style="font-weight: bold; color: yellow"{% endif %}>
+                <middle>食材名：{{ ing_s.name }}</middle>
+                <small>数量：{{ ing_s.numbers }} {{ ing_s.get_unit_display }}</small>
+                <small>賞味期限：{{ ing_s.expiration_date }}</small>
+                {% if ing_s.history.updated_at == None %}
+                {% else %}
+                  <small>更新日時：{{ ing_s.history.updated_at }}</small>
+                {% endif %}
+                <small>更新者：{{ ing_s.user }}</small>
+              </div>
+            </a>
+            <a href="{% url 'update_ingre' ing_s.pk %}" class="btn btn-info">材料更新</a>
+            <a href="{% url 'delete_ingre' ing_s.pk %}" class="btn btn-danger">材料削除</a>
+            <p></p>
+          {% endif %}
+
+        {% empty %}
+        <h4>
+          {{ object.get_name_display }}には食材がありません。材料追加ボタンから食材を追加しましょう！
+        </h4>
+        
+        <p></p>
+        {% endfor %}
+    </div>
 
   <div class="back" href="{% static 'base.css' %}" rel="stylesheet">
     <a href="{% url 'detail_ref' object.refrigerator.pk %}" class="btn btn-primary">戻る</a>

@@ -44,7 +44,11 @@
         <th scope="row">{{ forloop.counter }}</th>
         <td>{{ ingre_history.ingre_numbers}}{{ ingre_history.get_ingre_unit_display }}</td>
         <td>{{ ingre_history.expiration_date }}</td>
-        <td>{{ ingre_history.updated_at }}</td>
+        {% if ingre_history.updated_at == None %}
+          <td>N/A</td>
+        {% else %}
+          <td>{{ ingre_history.updated_at }}</td>
+        {% endif %}
         <td>{{ ingre_history.user }}</td>
       </tr>
       {% endfor %}

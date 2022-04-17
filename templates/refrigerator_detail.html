@@ -16,10 +16,18 @@
     {% for child_cpmt, number in child_cpmt_list|zip:ing_quantity %}
         <a href="{% url 'cpmt_detail' child_cpmt.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
           <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">{{ child_cpmt.get_name_display }}  
-              &nbsp;<font size="3">食材:{{number}}種類</font>
-            </h5>
-            <small>更新日:{{ child_cpmt.ingre_history.updated_at }}</small>
+            <div class="mb-1">
+              {{ child_cpmt.get_name_display }}  
+              <middle>
+                  食材:{{number}}種類
+              </middle>
+            </div>
+
+            {% if child_cpmt.ingre_history == None %}
+
+            {% else %}
+              <small>更新日:{{ child_cpmt.ingre_history.updated_at }}</small>
+            {% endif %}
           </div>
         </a>
         <a href="{% url 'update_cpmt' child_cpmt.pk %}" class="btn btn-info">冷蔵室更新</a>

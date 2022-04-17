@@ -8,13 +8,13 @@
 <h5>{{object.name}}を削除しても良いですか？</h5>
 <form action='' method='POST'>{% csrf_token %}
     <input type="submit" value="削除する">
-    <a href="{% url 'ref' %}" class="btn btn-primary">戻る</a>
+    <a href="{% url 'ref' 'def' %}" class="btn btn-primary">戻る</a>
 </form>
 
 {% elif child_cpmt_numbers >= 0 %}
 <h5>{{object.name}}に関連する冷蔵室があるため削除できません。</h5>
 <form action='' method='POST'>{% csrf_token %}
-    <a href="{% url 'ref' %}" class="btn btn-primary">戻る</a>
+    <a href="{% url 'ref' 'def' %}" class="btn btn-primary">戻る</a>
 </form>
 
 {% else %}

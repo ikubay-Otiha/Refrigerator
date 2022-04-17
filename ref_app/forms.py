@@ -1,9 +1,33 @@
 from django import forms
-from .models import IngredientsModel, CompartmentModel
+from .views import *
+from .models import IngredientsModel, CompartmentModel, RefrigeratorModel
 from django.contrib.admin.widgets import AdminDateWidget
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+class RefrigeratorCreateForm(forms.ModelForm):
+    class Meta:
+        model = RefrigeratorModel
+        fields = ('name',)
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        refrigerator = super().save(commit=False)
+        refrigerator.save()
+        current_user = self.user
+        user = User.objects.filter(id=current_user.id)
+        ins = RefrigeratorModel.objects.create(
+            user = user
+        )
+        ins.user.set(user)
+
+        if commit:
+            refrigerator.save()
+            super()._save_m2m()
+        return refrigerator
 
 class IngredientsCreateForm(forms.ModelForm):
     class Meta:

@@ -6,7 +6,7 @@ from django.views import generic
 from django.urls import reverse_lazy, reverse
 from django.db import models, IntegrityError
 from .models import IngredientsHistoryModel, RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
-from .forms import IngredientsCreateForm, IngredientsUpdateForm
+from .forms import RefrigeratorCreateForm, IngredientsCreateForm, IngredientsUpdateForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -21,17 +21,19 @@ class HomeList(ListView):
         context = super().get_context_data(**kwargs)
         context['name'] = self.request.user
         context['filter'] = User.objects.all()
+        context['time'] = datetime.datetime.today()
         return context
+
 class RefrigeratorList(LoginRequiredMixin, ListView):
     template_name = 'refrigerator.html'
     model = RefrigeratorModel
-    paginate_by = 3
+    paginate_by = 4
     def get_queryset(self, *args, **kwargs):
         current_user = self.request.user
-        sort_order_from_url = self.kwargs['filter']
-        if sort_order_from_url == 'filter_name':
+        sort_order_from_url = self.kwargs['sort']
+        if sort_order_from_url == 'sort_name':
             sort_order = 'name'
-        elif sort_order_from_url == 'filter_date':
+        elif sort_order_from_url == 'sort_date':
             sort_order = '-date'
         elif sort_order_from_url == 'def':
             sort_order = 'date'
@@ -40,6 +42,11 @@ class RefrigeratorList(LoginRequiredMixin, ListView):
             return RefrigeratorModel.objects.all().order_by(sort_order)
         else:
             return RefrigeratorModel.objects.filter(user=current_user.id).order_by(sort_order)
+    
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['last_updated_at'] = IngredientsHistoryModel.objects.filter(user_id=self.request.user.id)
+        return ctx
 
 class RefrigeratorDetail(DetailView):
     template_name = 'refrigerator_detail.html'
@@ -61,25 +68,35 @@ class RefrigeratorDetail(DetailView):
 class RefrigeratorCreate(CreateView):
     template_name = 'create_refrigerator.html'
     model = RefrigeratorModel
-    fields = ('name','user')
-    success_url = reverse_lazy('ref')   
-    def get_context_data(self, **kwargs):
-        current_user = self.request.user
-        context = super().get_context_data(**kwargs)
+    form_class = RefrigeratorCreateForm
+    # def get_context_data(self, **kwargs):
+        # current_user = self.request.user
+        # context = super().get_context_data(**kwargs)
         # ⬆️親クラス（CreateView）のmethodを実行している
-        if current_user.is_superuser:
-            return context
-        else:
-            context['form'].fields['user'].queryset = User.objects.filter(id=current_user.id)
-            return context
+        # if current_user.is_superuser:
+            # return context
+        # else:
+            # context['form'].fields['user'].queryset = User.objects.filter(id=current_user.id)
+            # return context
     # UrlsのCompartmentCreate.as_view()のメソッドが実行されると、
     # get_context_data(self, **kwargs):も続いて実行される
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return super().form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_success_url(self, *args):
+        return reverse('ref', args={'def'})
 
 class RefrigeratorUpdate(UpdateView):
     template_name = 'update_refrigerator.html'
     model = RefrigeratorModel
     fields = ('name', 'user')
-    success_url = reverse_lazy('ref')
     def get_context_data(self, **kwargs):
         current_user = self.request.user
         context = super().get_context_data(**kwargs)
@@ -88,17 +105,20 @@ class RefrigeratorUpdate(UpdateView):
         else:    
             context['form'].fields['user'].queryset = User.objects.filter(id=current_user.id)
             return context
-        return HttpResponseForbidden
+    def get_success_url(self, *args):
+        return reverse('ref', args={'def'})
         
 class RefrigeratorDelete(DeleteView):
     template_name = 'delete_refrigerator.html'
     model = RefrigeratorModel
-    success_url = reverse_lazy('ref')
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['child_cpmt_list'] = CompartmentModel.objects.filter(refrigerator=self.get_object())
         ctx['child_cpmt_numbers'] = ctx['child_cpmt_list'].filter().count()
         return ctx
+    
+    def get_success_url(self, *args):
+        return reverse('ref', args={'def'})
 
 class CompartmentDetail(DetailView):
     template_name = 'compartment_detail.html'
@@ -116,9 +136,10 @@ class CompartmentDetail(DetailView):
             over_exp = diff < datetime.timedelta(0)
             if over_exp:
                 ingredients.expiration_date
-                ingredients.is_over_exp = True 
+                ingredients.is_over_exp = True
+                ctx['over_expiration_true'] = True
+                
         ctx['get_cpmt'] = get_cpmt
-        ctx['test'] = CompartmentModel.objects.filter(id=self.object.id)
         return ctx
 
 class CompartmentCreate(CreateView):
@@ -179,7 +200,6 @@ class IngredientsCreate(CreateView):
             user_ref = RefrigeratorModel.objects.filter(id=current_user.id)
             return ctx
     def form_valid(self, form):
-        """If the form is valid, save the associated model."""
         self.object = form.save()
         ing_ins = self.object
         cpmt = self.object.compartment

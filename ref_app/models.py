@@ -87,7 +87,7 @@ class IngredientsHistoryModel(models.Model):
         on_delete=models.PROTECT,
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日")
+    updated_at = models.DateTimeField(null=True, verbose_name="更新日")
     ingre_numbers = models.IntegerField(verbose_name="数量")
     ingre_unit = models.CharField(max_length=50, choices=UNIT, verbose_name="単位")
     expiration_date = models.DateField( 

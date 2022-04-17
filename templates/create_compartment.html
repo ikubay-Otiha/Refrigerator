@@ -3,7 +3,9 @@
 {% block content %}
 <h3 class="display-9">冷蔵・冷凍室作成</h1>
 <form action='' method='POST'>{% csrf_token %}
-    {{form.as_p}}
+    <table>
+        {{ form.as_table }}
+    </table>
     <input type="submit" value="作成する">
     <a href="{% url 'detail_ref' ref_pk %}" class="btn btn-primary">戻る</a>
 </form>
