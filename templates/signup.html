@@ -1,4 +1,4 @@
-<!doctype html>
+{% load static %}<!doctype html>
 <html lang="en">
   <head>
     <!-- Required meta tags -->
@@ -13,6 +13,7 @@
 
 {% block content%}
 
+
 <div class="container">
   <form class="form-signin" method='post'>{% csrf_token %}
       <h1 class="h3 mb-3 fw-normal">Please sign up</h1>
@@ -20,12 +21,45 @@
       <p><font size="5" color="red">{{ error }}</font></p>
       {% endif%}
       <br>
+      {% comment %}
       <label for="imputusername" class="sr-only">Username</label>
       <input type="text" id="inputusername" class="form-control" placeholder="username" name="username_data" required autofocus>
-      
-      <label for="imputpassword" class="sr-only">Password</label>
-      <input type="password" id="inputpassword" class="form-control" placeholder="password" name="password_data" required>     
+        
+        <div class="row">
+          <div class="col">
+            <label for="imputfirst_name" class="sr-only">firstname</label>
+            <input type="text" id="inputfirst_name" class="form-control" placeholder="firstname" name="first_name_data" required autofocus>
+          </div>
+          <div class="col">
+            <label for="imputlast_name" class="sr-only">lastname</label>
+            <input type="text" id="inputlast_name" class="form-control" placeholder="lastname" name="last_name_data" required autofocus>
+          </div>
+        </div>
 
+      <label for="imputemail" class="sr-only">e-mail</label>
+      <input type="email" id="inputemail" class="form-control" placeholder="email" name="email" required autofocus>
+
+      <label for="imputpassword" class="sr-only">Password</label>
+      <input type="password" id="inputpassword" class="form-control" placeholder="password" name="password_data" required>
+{% endcomment %}
+
+    <q>{{ form.fields.username.label }}</q>
+    <q>{{ form.username }}</q>
+    <q>{{ form.fields.first_name.label }}</q>
+    <q>{{ form.first_name }}</q>
+    <q>{{ form.fields.last_name.label }}</q>
+    <q>{{ form.last_name }}</q>
+    <q>{{ form.fields.email.label }}</q>
+    <q>{{ form.email }}</q>
+    <q>{{ form.fields.password1.label }}</q>
+    <q>{{ form.password1 }}</q>
+    <q>{{ form.fields.password2.label }}</q>
+    <q>{{ form.password2 }}</q>
+
+    {% comment %}
+        fieldに対してインプットが不足するとDBへのセーブができない。
+        ユーザー登録がうまくいかなかった時のエラーメッセージがない。
+    {% endcomment%}
   
       <div class="checkbox mb-3">
         <label>
@@ -39,5 +73,4 @@
 
 {% endblock content%}
 
-{{ you }}
 </html>

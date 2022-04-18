@@ -37,17 +37,25 @@ class IngredientsCreateForm(forms.ModelForm):
         widgets = {
             'expiration_date' : forms.SelectDateWidget(),
         }
+    # form オブジェクトを初期化(作成)するときに実行される。
+    # 初期化は view 側の get_form_kwargsで与えられた値をもとになされる
     def __init__(self, user, compartment_pk, *args, **kwargs):
         self.user = user
         self.compartment = CompartmentModel.objects.get(pk=compartment_pk)
         super().__init__(*args, **kwargs)
 
+    # form の値の validate 完了後にオブジェクトをセーブするときに実行される
     def save(self, commit=True):
+        
+        # まず、saveするオブジェクトを作成する commit=FalseとすることでDBへの保存はまだしない
         ingredients = super().save(commit=False) #saveするobjectの作成
+        
+        # __init__ で設定された user と compartment をsaveするオブジェクトに追加
         ingredients.user = self.user
         ingredients.compartment = self.compartment
 
         if commit:
+            # DBに保存する
             ingredients.save()
         return ingredients
 
@@ -59,7 +67,8 @@ class IngredientsUpdateForm(forms.ModelForm):
             'expiration_date' : forms.SelectDateWidget(),
         }
         
-# class IngredientsCreateSelectForm(forms.ModelForm):
-#     class Meta:
-#         model = IngredientsModel
-#         fields = ('')
+        
+class SignupForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ["username", "first_name", "last_name", "email"]

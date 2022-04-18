@@ -28,8 +28,8 @@ urlpatterns = [
 
     path('login/', loginview, name='login'),
     path('logout/', logoutview, name='logout'),
+    path('signup/', SignupView.as_view(), name='signup')
+    # path('signup/', signupview, name='signup'),
 
-    path('signup/', signupview, name='signup'),
-
-    path('html_test', Test.as_view(), name='test')
+    
 ]

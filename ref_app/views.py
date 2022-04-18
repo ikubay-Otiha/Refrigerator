@@ -1,12 +1,13 @@
 from datetime import datetime
-from django.http import HttpResponse, HttpResponseForbidden
+from re import template
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.views import generic
 from django.urls import reverse_lazy, reverse
 from django.db import models, IntegrityError
 from .models import IngredientsHistoryModel, RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
-from .forms import RefrigeratorCreateForm, IngredientsCreateForm, IngredientsUpdateForm
+from .forms import RefrigeratorCreateForm, IngredientsCreateForm, IngredientsUpdateForm, SignupForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -223,6 +224,8 @@ class IngredientsCreate(CreateView):
         kwargs['user'] = self.request.user
         kwargs['compartment_pk'] = self.kwargs['cpmt_pk']
         return kwargs
+        # return super().get_form_kwargs() と一緒？
+        # kwargs.user / kwargs['user']の違い
 
 
 class IngredientsUpdate(UpdateView):
@@ -334,8 +337,6 @@ def logoutview(request):
     return redirect('login')
 
 def signupview(request):
-    print(request.POST.get('username_data'))
-    print(request.POST.get('password_data'))
     if request.method == 'POST':
         username_data = request.POST['username_data']
         password_data = request.POST['password_data']
@@ -345,28 +346,20 @@ def signupview(request):
         except IntegrityError:
             return render(request, 'signup.html', {'error':'This user was already registered.'})
     else:
-        print(User.objects.all())
         return render(request, 'signup.html', {})
     return redirect('login')
     # return render(request, 'login.html', {"you":request.POST.get('username_data')})
 
-def index(request):
-    RefrigeratorModel = RefrigeratorModel.objects.order_by('date').reverse()
-    paginator = Paginator(RefrigeratorModel, 2)
-    page = request.GET.get('page', 1)
-    try:
-        pages = paginator.page(page)
-    except PageNotAnInteger:
-        pages = paginator.page(1)
-    except:
-        pages = paginator.page(1)
-    ctx = {'pages':pages}
-    return render(request, 'test.html', ctx)
+class SignupView(CreateView):
+    form_class = SignupForm
+    template_name = "signup.html"
+    success_url = reverse_lazy('login')
 
-
-class Test(ListView):
-    template_name = "test.html"
-    queryset = User.objects.all()
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        self.object = user
+        return HttpResponseRedirect(self.get_success_url())
 
 # from path.to.the.model import MyModel # 事前にモデルがimportされていない場合
 # MyModel._meta.get_fields()
