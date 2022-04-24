@@ -28,14 +28,12 @@
       {% endfor %}
     </div>
     <div class="alarm_numbers">
-      {% for alarm_number in child_ingredients %}
-        {% if forloop.first %}
-         <h3 style="font-weight: bold; color: red">
-          残り少ない材料があります！
-        </h3>
+        {% if less_number_true == True %}
+            <h3 style="font-weight: bold; color: red">
+              残り少ない材料があります！
+            </h3>
         {% else %}
         {% endif %}
-      {% endfor %}
       {% for alarm_number in child_ingredients %}
         {% if alarm_number.numbers <= 1 %}
           <li>{{ alarm_number.name }} : {{ alarm_number.numbers }}{{ alarm_number.get_unit_display }}</li>
@@ -51,10 +49,18 @@
           {% if ing_s.numbers == 0 %}
           {% else %}
             <a href="{% url 'detail_ingre' ing_s.pk %}" class="list-group-item list-group-item-action active" aria-current="true">
-              <div class="d-flex w-100 justify-content-between" {% if ing_s.is_over_exp %}style="font-weight: bold; color: yellow"{% endif %}>
+              <div class="d-flex w-100 justify-content-between">
                 <middle>食材名：{{ ing_s.name }}</middle>
-                <small>数量：{{ ing_s.numbers }} {{ ing_s.get_unit_display }}</small>
-                <small>賞味期限：{{ ing_s.expiration_date }}</small>
+                <div class="change_color" {% if ing_s.is_less_number %}style="font-weight: bold; color: yellow"{% endif %}>
+                  <small>
+                    数量：{{ ing_s.numbers }} {{ ing_s.get_unit_display }}
+                  </small>
+                </div>
+                  <div class="change_color" {% if ing_s.is_over_exp %}style="font-weight: bold; color: orange"{% endif %}>
+                    <small>
+                      賞味期限：{{ ing_s.expiration_date }}
+                    </small>
+                  </div>
                 {% if ing_s.history.updated_at == None %}
                 {% else %}
                   <small>更新日時：{{ ing_s.history.updated_at }}</small>

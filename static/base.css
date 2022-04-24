@@ -1,4 +1,7 @@
 /* そのままctr+Rしてもブラウザに反映されない時は、shift+crl+R */
+
+@import url(http://fonts.googleapis.com/css?family=Pinyon+Script);
+
 #greeting {
     margin: 10px;
     font-size: large;
@@ -26,8 +29,26 @@
     margin: 30px;
 }
 
+.create {
+    margin-top: 30px;
+    margin-left: 30px;
+    margin-right: 1000px;
+}
+
+.update {
+    margin-top: 30px;
+    margin-left: 30px;
+    margin-right: 1000px;
+}
+
+.delete {
+    margin-top: 30px;
+    margin-left: 30px;
+    margin-right: 800px;
+}
+
 .back {
-    margin: 20px;
+    margin: 30px;
 }
 
 .mb-1 {
@@ -55,6 +76,10 @@
 #test-text {
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
     padding: 30px;
+}
+
+#copyright {
+    font-family: Pinyon Script, cursive;
 }
 
 

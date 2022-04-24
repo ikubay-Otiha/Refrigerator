@@ -12,6 +12,7 @@
         <a href="{% url 'ref' 'sort_name' %}" class="btn btn-outline-primary">名前順</a>
     <p></p>
     
+    
     <div class="forloop" href="{% static 'base.css' %}" rel="stylesheet">
         <div class="" href="{% static 'base.css' %}" rel="stylesheet">
             {% for refrigerator in object_list %}
@@ -21,17 +22,22 @@
                     <small>作成日 : {{ refrigerator.date }}</small>
                     </div>
                 </a>
-            <a href="{% url 'update_ref' refrigerator.pk %}" class="btn btn-info">冷蔵庫更新</a>
-            <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">冷蔵庫削除</a>
+            <a href="{% url 'update_ref' refrigerator.pk %}" class="btn btn-info">名前変更</a>
+            <a href="{% url 'delete_ref' refrigerator.pk %}" class="btn btn-danger">削除</a>
             <p></p>
+            {% empty %}
+            <h4>
+                あなたの冷蔵庫はまだ未作成です。冷蔵庫作成ボタンからあなたの冷蔵庫を作成しましょう！
+            </h4>
             {% endfor %}
         </div>
     </div>
+
 </div>
 
+    <!-- Paginator -->
     <nav aria-label="Page navigation example">
-
-      <ul class="pagination justify-content-center pagination-lg g-mt-28 g-mb-28">
+        <ul class="pagination justify-content-center pagination-lg g-mt-28 g-mb-28">
           <!-- 前へ の部分 -->
           {% if page_obj.has_previous %}
               <li class="page-item">
@@ -40,7 +46,6 @@
                   </a>
               </li>
           {% endif %}
-  
           <!-- 数字の部分 -->
           {% for num in page_obj.paginator.page_range %}
               {% if num <= page_obj.number|add:5 and num >= page_obj.number|add:-5 %}
@@ -52,7 +57,6 @@
                   {% endif %}
               {% endif %}
           {% endfor %}
-  
           <!-- 次へ の部分 -->
           {% if page_obj.has_next %}
               <li class="page-item">
@@ -61,45 +65,12 @@
                   </a>
               </li>
           {% endif %}
-      </ul>
-  
-  </nav>
+         </ul>
+    </nav>
 
 <p></p>
 <div class="back" href="{% static 'base.css' %}" rel="stylesheet">
-    <a href="{% url 'home' %}" class="btn btn-primary">戻る</a>
+    <a href="{% url 'home' %}" class="btn btn-secondary">戻る</a>
 </div>
 
 {% endblock content %}
-
-{% comment %}
-{% if pages.has_other_pages %}
-<nav aria-label="Page navigation example">
-    <ul class="pagination">
-      {% if pages.has_previous %}
-            <li><a class="page-link text-primary d-inline-block" href="?page={{ pages.previous_page_number }}"><<</a></li>
-        {% else %}
-            <li class="disabled"><div class="page-link text-secondary d-inline-block disabled" href="#"><<</div></li>
-        {% endif %}
-
-        {% for page_num in pages.paginator.page_range %}
-            {% if page_num %}
-                {% if page_num == pages.number %}
-                    <li class="disabled"><div class="page-link text-secondary d-inline-block disabled" href="#">{{page_num }}</div></li>
-                {% else %}
-                    <li><a class="page-link text-primary d-inline-block" href="?page={{ page_num }}">{{ page_num }}</a></li>
-                {% endif %}
-            {% else %}
-                <li class="disabled"><a class="page-link text-secondary d-inline-block text-muted" href="#">・・・</a></li>
-            {% endif %}
-        {% endfor %}
-
-        {% if pages.has_next %}
-            <li><a class="page-link text-primary d-inline-block" href="?page={{ pages.next_page_number }}">>></a></li>
-        {% else %}
-            <li class="disabled"><div class="page-link text-secondary d-inline-block disabled" href="#">>></div></li>
-        {% endif %}
-    </ul>
-</nav>
-{% endif %}
-{% endcomment %}

@@ -15,19 +15,32 @@ class RefrigeratorCreateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        refrigerator = super().save(commit=False)
-        refrigerator.save()
+        # many to many はリレーション先を定める前にオブジェクトができている必要あるためcommit=falseしない
+        # super().save()の戻り地はrefrigeatorのオブジェクトのため自作する必要なし
+        refrigerator = super().save()
         current_user = self.user
-        user = User.objects.filter(id=current_user.id)
-        ins = RefrigeratorModel.objects.create(
-            user = user
-        )
-        ins.user.set(user)
-
+        # 単体のオブジェクトの場合はaddを使う
+        refrigerator.user.add(current_user)
         if commit:
             refrigerator.save()
-            super()._save_m2m()
         return refrigerator
+
+class CompartmentCrateForm(forms.ModelForm):
+    class Meta:
+        model = CompartmentModel
+        fields = ('name',)
+
+    def __init__(self, refrigerator_pk, *args, **kwargs):
+        self.refrigerator = RefrigeratorModel.objects.get(pk=refrigerator_pk)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        compartment = super().save(commit=False)
+        compartment.refrigerator = self.refrigerator
+
+        if commit:
+            compartment.save()
+        return compartment
 
 class IngredientsCreateForm(forms.ModelForm):
     class Meta:

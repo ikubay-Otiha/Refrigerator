@@ -1,6 +1,11 @@
-{% load static %}<!doctype html>
+{% load static %}
+{% load widget_tweaks %}
+<!doctype html>
 <html lang="en">
   <head>
+
+    <link href="{% static 'base.css' %}" rel="stylesheet">
+
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,6 +26,7 @@
       <p><font size="5" color="red">{{ error }}</font></p>
       {% endif%}
       <br>
+
       {% comment %}
       <label for="imputusername" class="sr-only">Username</label>
       <input type="text" id="inputusername" class="form-control" placeholder="username" name="username_data" required autofocus>
@@ -41,33 +47,54 @@
 
       <label for="imputpassword" class="sr-only">Password</label>
       <input type="password" id="inputpassword" class="form-control" placeholder="password" name="password_data" required>
-{% endcomment %}
+      {% endcomment %}
 
-    <q>{{ form.fields.username.label }}</q>
-    <q>{{ form.username }}</q>
-    <q>{{ form.fields.first_name.label }}</q>
-    <q>{{ form.first_name }}</q>
-    <q>{{ form.fields.last_name.label }}</q>
-    <q>{{ form.last_name }}</q>
-    <q>{{ form.fields.email.label }}</q>
-    <q>{{ form.email }}</q>
-    <q>{{ form.fields.password1.label }}</q>
-    <q>{{ form.password1 }}</q>
-    <q>{{ form.fields.password2.label }}</q>
-    <q>{{ form.password2 }}</q>
+    <div class="form-group">
+      <form class="my-form" action="" method="POST">
+        {% csrf_token %}
+          <div class="row">
+            <div class="form-group col-md-11">
+              {{ form.fields.username.label }}
+              {{ form.username |add_class:"form-control"}}
+            </div>
+            <div class="form-group col-md-11">
+              {{ form.fields.last_name.label }}
+              {{ form.last_name |add_class:"form-control"}}
+            </div>
+            <div class="form-group col-md-11">
+              {{ form.fields.first_name.label }}
+              {{ form.first_name |add_class:"form-control"}}
+            </div>
+            <div class="form-group col-md-11 my-0">
+              {{ form.fields.email.label }}
+              {{ form.email |add_class:"form-control"}}
+            </div>
+            <div class="form-group col-md-11">
+              {{ form.fields.password1.label }}
+              {{ form.password1 |add_class:"form-control"}}
+            </div>
+            <div class="form-group col-md-11">
+              {{ form.fields.password2.label }}
+              {{ form.password2 |add_class:"form-control"}}
+              <p class="help-block">{{ form.password2.help_text }}</p>
+            </div>
+            <div class="form-group col-md-11">
+              <input type='hidden' name='next' value='{{ next }}' />
+              <button type="submit" class="btn btn-block btn-outline-primary">Register</button>
+            </div>
+          </div>
+      </form>
+    </div>
 
+    
     {% comment %}
         fieldに対してインプットが不足するとDBへのセーブができない。
         ユーザー登録がうまくいかなかった時のエラーメッセージがない。
     {% endcomment%}
   
-      <div class="checkbox mb-3">
-        <label>
-          <input type="checkbox" value="remember-me"> Remember Username
-        </label>
+      <div id="copyright">
+        <p class="mt-5 mb-3 text-muted">&copy; Takahito Yabuki 2022</p>
       </div>
-      <button class="w-100 btn btn-lg btn-primary" type="submit">Register</button>
-      <p class="mt-5 mb-3 text-muted">&copy; 2017-2022</p>
   </form>
 </div>
 

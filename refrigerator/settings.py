@@ -26,7 +26,7 @@ except ImportError:
     pass
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
 
 ALLOWED_HOSTS = []
 
@@ -96,6 +96,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTINONS': {
+            'min_length': 4,
+        } 
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',

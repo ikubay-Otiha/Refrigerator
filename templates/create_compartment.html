@@ -1,12 +1,25 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 
 {% block content %}
-<h3 class="display-9">冷蔵・冷凍室作成</h1>
-<form action='' method='POST'>{% csrf_token %}
-    <table>
-        {{ form.as_table }}
-    </table>
-    <input type="submit" value="作成する">
-    <a href="{% url 'detail_ref' ref_pk %}" class="btn btn-primary">戻る</a>
-</form>
+<div class="update">
+    <h3 class="display-9">冷蔵室作成</h1>
+    <form action='' method='POST'>{% csrf_token %}
+            <div class="form-group">
+                <form class="my-form" action="" method="POST">{% csrf_token %}
+                    <div class="row">
+                    <div class="form-group col-md-11">
+                        {{ form.fields.name.label }}
+                        {{ form.name |add_class:"form-control"}}
+                    </div>
+                    <div class="form-group col-md-11">
+                        <input type='hidden' name='next' value='{{ next }}' />
+                        <button type="submit" class="btn btn-primary">作成</button>
+                        <a href="{% url 'ref' 'def' %}" class="btn btn-secondary">戻る</a>
+                    </div>
+                </form>
+            </div>
+    </form>
+</div>
+
 {% endblock content %}

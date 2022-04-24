@@ -1,27 +1,31 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 
 {% block content %}
-<h3 class="display-9">冷蔵室削除</h3>
-
-{% if  ingre_numbers == 0 %}
-    <h3>
-        {{compartmentmodel}}を削除しても良いですか？
+<div class="delete">
+    <h3 class="display-9">
+        <b>冷蔵室削除</b>
     </h3>
-    <form action='' method='POST'>{% csrf_token %}
-        <input type="submit" value="削除する">
-        <a href="{% url 'detail_ref' object.refrigerator.pk %}" class="btn btn-primary">戻る</a>
-    </form>
-
-{% elif ingre_numbers >= 0 %}
-    <h5>
-    {{object.get_name_display}}に関連する材料があるため削除できません。
-    </h5>
-    <form action='' method='POST'>{% csrf_token %}
-        <a href="{% url 'detail_ref' object.refrigerator.pk %}" class="btn btn-primary">戻る</a>
-    </form>
-
-{% else %}
-    <h3>{{ error }}</h3>
-
-{% endif %}
+        {% if  ingre_numbers == 0 %}
+            <h4>
+                {{compartmentmodel}}を削除しても良いですか？
+            </h4>
+            <form action='' method='POST'>{% csrf_token %}
+                <button type="submit" class="btn btn-primary">削除</button>
+                <a href="{% url 'detail_ref' object.refrigerator.pk %}" class="btn btn-secondary">戻る</a>
+            </form>
+        
+        {% elif ingre_numbers >= 0 %}
+            <h5>
+            {{object.get_name_display}}に関連する材料があるため削除できません。
+            </h5>
+            <form action='' method='POST'>{% csrf_token %}
+                <a href="{% url 'detail_ref' object.refrigerator.pk %}" class="btn btn-secondary">戻る</a>
+            </form>
+        
+        {% else %}
+            <h3>{{ error }}</h3>
+        
+        {% endif %}
+</div>
 {% endblock content %}

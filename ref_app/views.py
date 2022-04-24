@@ -7,7 +7,7 @@ from django.views import generic
 from django.urls import reverse_lazy, reverse
 from django.db import models, IntegrityError
 from .models import IngredientsHistoryModel, RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
-from .forms import RefrigeratorCreateForm, IngredientsCreateForm, IngredientsUpdateForm, SignupForm
+from .forms import CompartmentCrateForm, RefrigeratorCreateForm, IngredientsCreateForm, IngredientsUpdateForm, SignupForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -52,7 +52,7 @@ class RefrigeratorList(LoginRequiredMixin, ListView):
 class RefrigeratorDetail(DetailView):
     template_name = 'refrigerator_detail.html'
     model = RefrigeratorModel
-
+    paginate_by = 4
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['name'] = self.request.user
@@ -87,6 +87,8 @@ class RefrigeratorCreate(CreateView):
         return super().form_valid(form)
 
     def get_form_kwargs(self):
+        # 親クラスのget_form_kwargsに処理依頼し、処理結果をkwargsに格納
+        # 親クラスの処理をする前に何らかの処理を加える際に取る常套手段
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
@@ -129,34 +131,39 @@ class CompartmentDetail(DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx['name'] = self.request.user
         ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
+        ctx['get_cpmt'] = get_cpmt
+ 
         for ingredients in ctx['child_ingredients']:
             ingredients.history = IngredientsHistoryModel.objects.filter(ingre_name=ingredients).order_by('-updated_at').first()
             exp_date = ingredients.expiration_date
             today = datetime.date.today()
             diff = exp_date - today
             over_exp = diff < datetime.timedelta(0)
+            # 賞味期限切れだとアラーム
             if over_exp:
                 ingredients.expiration_date
                 ingredients.is_over_exp = True
                 ctx['over_expiration_true'] = True
-                
-        ctx['get_cpmt'] = get_cpmt
+            # 材料が1個以下だとアラーム
+            if ingredients.numbers <= 1:
+                ingredients.is_less_number = True
+                ctx['less_number_true'] = True
         return ctx
 
 class CompartmentCreate(CreateView):
     template_name = 'create_compartment.html'
     model = CompartmentModel
-    fields = ('name', 'refrigerator')
-    def get_context_data(self, **kwargs):
-        current_user = self.request.user
-        context = super().get_context_data(**kwargs)
-        context['ref_pk'] = self.kwargs['ref_pk']
-        if current_user.is_superuser:
-            return context
-        else:    
-            set_ref_owner = User.objects.filter(id=current_user.id)
-            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(user=current_user)
-            return context
+    form_class = CompartmentCrateForm
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return super().form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['refrigerator_pk'] = self.kwargs['ref_pk']
+        return kwargs
+
     def get_success_url(self):
         return reverse('detail_ref', kwargs={'pk':self.object.refrigerator_id})
 
