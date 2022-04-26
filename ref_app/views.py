@@ -7,7 +7,7 @@ from django.views import generic
 from django.urls import reverse_lazy, reverse
 from django.db import models, IntegrityError
 from .models import IngredientsHistoryModel, RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
-from .forms import CompartmentCrateForm, RefrigeratorCreateForm, IngredientsCreateForm, IngredientsUpdateForm, SignupForm
+from .forms import CompartmentCrateForm, RefrigeratorCreateForm, RefrigeratorUpdateForm, IngredientsCreateForm, IngredientsUpdateForm, SignupForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -99,15 +99,17 @@ class RefrigeratorCreate(CreateView):
 class RefrigeratorUpdate(UpdateView):
     template_name = 'update_refrigerator.html'
     model = RefrigeratorModel
-    fields = ('name', 'user')
-    def get_context_data(self, **kwargs):
-        current_user = self.request.user
-        context = super().get_context_data(**kwargs)
-        if current_user.is_superuser:
-            return context
-        else:    
-            context['form'].fields['user'].queryset = User.objects.filter(id=current_user.id)
-            return context
+    form_class = RefrigeratorUpdateForm
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return super().form_valid(form)    
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def get_success_url(self, *args):
         return reverse('ref', args={'def'})
         
@@ -234,7 +236,6 @@ class IngredientsCreate(CreateView):
         # return super().get_form_kwargs() と一緒？
         # kwargs.user / kwargs['user']の違い
 
-
 class IngredientsUpdate(UpdateView):
     template_name = 'update_ingredients.html'
     model = IngredientsModel  
@@ -331,7 +332,7 @@ def loginview(request):
             # 1st-argument:移動先URLを指定
             # 2nd-argument:urlsに渡す変数を定義
         else:
-            return redirect('login')
+            return render(request,'login.html', {'error':'Uncorrect Username, Password or unregistered user.'})
     return render(request, 'login.html')
     # renderで結果をWebPageに表示
     # ex) return render(request, template, context)
@@ -343,19 +344,19 @@ def logoutview(request):
     logout(request)
     return redirect('login')
 
-def signupview(request):
-    if request.method == 'POST':
-        username_data = request.POST['username_data']
-        password_data = request.POST['password_data']
-        # user = User.objects.create_user(username_data, '', password_data)
-        try:
-            User.objects.create_user(username_data, '', password_data)
-        except IntegrityError:
-            return render(request, 'signup.html', {'error':'This user was already registered.'})
-    else:
-        return render(request, 'signup.html', {})
-    return redirect('login')
-    # return render(request, 'login.html', {"you":request.POST.get('username_data')})
+# def signupview(request):
+    # if request.method == 'POST':
+        # username_data = request.POST['username_data']
+        # password_data = request.POST['password_data']
+        # user = User.objects.create_user(username_data, '', password_data) Sealed
+        # try:
+            # User.objects.create_user(username_data, '', password_data)
+        # except IntegrityError:
+            # return render(request, 'signup.html', {'error':'This user was already registered.'})
+    # else:
+        # return render(request, 'signup.html', {})
+    # return redirect('login')
+    # return render(request, 'login.html', {"you":request.POST.get('username_data')}) Sealed
 
 class SignupView(CreateView):
     form_class = SignupForm
@@ -363,8 +364,8 @@ class SignupView(CreateView):
     success_url = reverse_lazy('login')
 
     def form_valid(self, form):
-        user = form.save()
-        login(self.request, user)
+        user = form.save() #formの情報を保存
+        login(self.request, user) #authentication
         self.object = user
         return HttpResponseRedirect(self.get_success_url())
 

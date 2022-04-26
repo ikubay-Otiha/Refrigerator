@@ -1,53 +1,47 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+{{ form.media }}
 <head>
     {{add_date_form.media}}
 </head>
 
 {% block content %}
-<h3 class="display-9">材料作成</h1>
-
-<form action="" method='POST'>
-    {% csrf_token %}
-    
-<table>
-  {{ form.as_table }}
-</table>
-    
-
-    <!-- form = viewsにあるRefrigaratorCreateのformと同一 -->
-    
-    <!-- {% for num in numbers %} -->
-        <!-- <h1>{ itemlist[{{ forloop.counter0 }}].id}</h1> -->
-    <!-- {% endfor %} -->
-
-    <button type="submit" class="btn btn-primary">作成する</button>
-    <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-secondary">戻る</a>
-
-</form>
+<div class="create">
+  <h3 class="display-9">食材作成</h3>
+  <form action='' method='POST'>{% csrf_token %}
+          <div class="form-group">
+              <form class="my-form" action="" method="POST">{% csrf_token %}
+                  <div class="row">
+                  <div class="form-group col-md-11">
+                      {{ form.fields.name.label }}
+                      {{ form.name |add_class:"form-control"}}
+                  </div>
+                  <div class="form-group col-md-11">
+                    {{ form.fields.numbers.label }}
+                    {{ form.numbers |add_class:"form-control"}}
+                  </div>
+                  <div class="form-group col-md-11">
+                    {{ form.fields.unit.label }}
+                    {{ form.unit |add_class:"form-control"}}
+                  </div>
+                  <div class="form-group col-md-11">
+                    {{ form.fields.expiration_date.label }}
+                    {{ form.expiration_date |add_class:"form-control"}}
+                  </div>
+                  <div class="form-group col-md-11">
+                      <input type='hidden' name='next' value='{{ next }}' />
+                      <button type="submit" class="btn btn-primary">作成</button>
+                      <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-secondary">戻る</a>
+                  </div>
+              </form>
+          </div>
+  </form>
+</div>
 
 {% endblock content %}
 
+{% comment %}
 <!-- under construction -->
-{% comment %} 
-
-{{ form.name.label }}
-{{ form.name }}
-<br>
-{{ form.user.label }}
-{{ form.user }}
-<br>
-{{form.numbers.label}}
-{{form.numbers}}
-<br>
-{{form.unit.label}}
-{{form.unit}}
-<br>
-{{form.expiration_date.label}}
-{{form.expiration_date}}
-<br>
-
-
 <div class="form-group row">
     <label for="{{ form.name.label }}" class="col-sm-3 col-form-label">
         材料名

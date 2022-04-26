@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3 class="display-9">材料削除</h3>
-<h2>{{object.name}}を削除します。履歴を含め全て削除されます。</h2>
-<h2>削除されたデータは復旧できません。それでもよろしいでしょうか？</h2>
-<form action='' method='POST'>{% csrf_token %}
-    <input type="submit" value="削除する">
-    <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-primary">戻る</a>
-</form>
-
+<div class="delete">
+    <h3 class="display-9"><b>材料削除</b></h3>
+    <h2>{{object.name}}を削除します。履歴を含め全て削除されます。</h2>
+    <h2>削除されたデータは復旧できません。それでもよろしいでしょうか？</h2>
+    <form action='' method='POST'>{% csrf_token %}
+        <button type="submit" class="btn btn-primary">削除</button>
+        <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-secondary">戻る</a>
+    </form>
+</div>
 {% endblock content %}

@@ -22,10 +22,13 @@
 <div class="container">
   <form class="form-signin" method='post'>{% csrf_token %}
       <h1 class="h3 mb-3 fw-normal">Please sign up</h1>
-      {% if error %}
-      <p><font size="5" color="red">{{ error }}</font></p>
-      {% endif%}
-      <br>
+      {% if form.errors %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class='errormsg'>{{ error }}</div>
+            {% endfor %}
+        {% endfor %}
+      {% endif %}
 
       {% comment %}
       <label for="imputusername" class="sr-only">Username</label>
@@ -85,12 +88,6 @@
           </div>
       </form>
     </div>
-
-    
-    {% comment %}
-        fieldに対してインプットが不足するとDBへのセーブができない。
-        ユーザー登録がうまくいかなかった時のエラーメッセージがない。
-    {% endcomment%}
   
       <div id="copyright">
         <p class="mt-5 mb-3 text-muted">&copy; Takahito Yabuki 2022</p>

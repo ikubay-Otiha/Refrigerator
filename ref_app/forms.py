@@ -25,6 +25,23 @@ class RefrigeratorCreateForm(forms.ModelForm):
             refrigerator.save()
         return refrigerator
 
+class RefrigeratorUpdateForm(forms.ModelForm):
+    class Meta:
+        model = RefrigeratorModel
+        fields = ('name',)
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        refrigerator = super().save()
+        current_user = self.user
+        refrigerator.user.add(current_user)
+        if commit:
+            refrigerator.save()
+        return refrigerator
+
 class CompartmentCrateForm(forms.ModelForm):
     class Meta:
         model = CompartmentModel
