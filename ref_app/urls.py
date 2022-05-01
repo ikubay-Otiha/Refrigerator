@@ -28,7 +28,10 @@ urlpatterns = [
 
     path('login/', loginview, name='login'),
     path('logout/', logoutview, name='logout'),
-    path('signup/', SignupView.as_view(), name='signup')
+    path('signup/', SignupView.as_view(), name='signup'),
+    path('changeuser/', UserChange.as_view(), name='userchange'),
+    path('password_change/', PasswordChange.as_view(), name='password_change'),
+
     # path('signup/', signupview, name='signup'),
 
     

@@ -2,7 +2,7 @@ from django import forms
 from .views import *
 from .models import IngredientsModel, CompartmentModel, RefrigeratorModel
 from django.contrib.admin.widgets import AdminDateWidget
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 
 class RefrigeratorCreateForm(forms.ModelForm):
@@ -92,13 +92,42 @@ class IngredientsCreateForm(forms.ModelForm):
 class IngredientsUpdateForm(forms.ModelForm):
     class Meta:
         model = IngredientsModel
-        fields = ('expiration_date',)
+        fields = ('name', 'numbers', 'unit', 'expiration_date',)
         widgets = {
             'expiration_date' : forms.SelectDateWidget(),
         }
-        
-        
+    def __init__(self, user, compartment_pk, *args, **kwargs):
+        self.user =user
+        self.compartment = CompartmentModel.objects.get(pk=compartment_pk)        
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        ingredients = super().save(commit=False)
+        ingredients.user = self.user
+        ingredients.compartment = self.compartment
+
+        if commit:
+            ingredients.save()
+        return ingredients
+
 class SignupForm(UserCreationForm):
     class Meta:
         model = User
         fields = ["username", "first_name", "last_name", "email"]
+
+class UserChangeForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["username", "first_name", "last_name", "email"]
+
+class PasswordChangeForm(PasswordChangeForm):
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(self, *args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+
+    def clean_old_password(self):
+        old_password = self.cleaned_data["old_password"]
+        self.user.check_password = old_password
+        super().clean_old_password(self)
+

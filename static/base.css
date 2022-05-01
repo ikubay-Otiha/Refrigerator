@@ -13,9 +13,13 @@
 }
 
 #showuser {
-    color: black;
     font-weight: bold;
     margin-right: 10px;
+}
+.register {
+    margin-top: 30px;
+    margin-left: 80px;
+    margin-right: 800px;
 }
 
 .list-group {

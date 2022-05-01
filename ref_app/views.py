@@ -6,8 +6,9 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.views import generic
 from django.urls import reverse_lazy, reverse
 from django.db import models, IntegrityError
-from .models import IngredientsHistoryModel, RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel, SalesInfoModel, TodaysRecipeModel #←tentatively#
-from .forms import CompartmentCrateForm, RefrigeratorCreateForm, RefrigeratorUpdateForm, IngredientsCreateForm, IngredientsUpdateForm, SignupForm
+from .models import IngredientsHistoryModel, RefrigeratorModel, CompartmentModel, IngredientsModel, InfomationModel #←tentatively#
+from .forms import CompartmentCrateForm, RefrigeratorCreateForm, RefrigeratorUpdateForm, IngredientsCreateForm, IngredientsUpdateForm, SignupForm, UserChangeForm, PasswordChangeForm
+from django.contrib.auth.views import PasswordChangeView
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -203,11 +204,9 @@ class IngredientsCreate(CreateView):
         current_user = self.request.user
         ctx = super().get_context_data(**kwargs)
         ctx['cpmt_pk'] = self.kwargs['cpmt_pk']
-
         if current_user.is_superuser:
             return ctx
         else:    
-            user_ref = RefrigeratorModel.objects.filter(id=current_user.id)
             return ctx
     def form_valid(self, form):
         self.object = form.save()
@@ -239,33 +238,53 @@ class IngredientsCreate(CreateView):
 class IngredientsUpdate(UpdateView):
     template_name = 'update_ingredients.html'
     model = IngredientsModel  
-    fields =('name', 'user', 'compartment', 'numbers', 'unit', 'expiration_date')
+    form_class = IngredientsUpdateForm
     def get_context_data(self, **kwargs):
         current_user = self.request.user
-        cpmt = self.object.compartment
-        context =  super().get_context_data(**kwargs)
-        context['cpmt_pk'] = cpmt.pk
-        context['add_date_form'] = IngredientsUpdateForm()
+        ctx =  super().get_context_data(**kwargs)
+        ctx['cpmt_pk'] = self.object.compartment.id
+        # ctx['add_date_form'] = IngredientsUpdateForm()
         if current_user.is_superuser:
-            return context
+            return ctx
         else: 
-            context['form'].fields['user'].queryset = User.objects.filter(id=self.request.user.id)
-            return context
+            return ctx
+
+    # def form_valid(self, form):
+        # self.object = form.save()
+        # ing_ins = form.instance
+        # cpmt_id = form.cleaned_data['compartment'].id
+        # IngredientsHistoryModel.objects.create(
+            # ingre_name = ing_ins,
+            # user = self.request.user,
+            # ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
+            # updated_at = datetime.datetime.now(),
+            # ingre_numbers = form.cleaned_data['numbers'],
+            # ingre_unit = form.cleaned_data['unit'],
+            # expiration_date = form.cleaned_data['expiration_date'],
+        # )
+        # return super().form_valid(form)
+
     def form_valid(self, form):
-        """If the form is valid, save the associated model."""
         self.object = form.save()
-        ing_ins = form.instance
-        cpmt_id = form.cleaned_data['compartment'].id
+        ing_ins = self.object
+        cpmt = self.object.compartment
         IngredientsHistoryModel.objects.create(
             ingre_name = ing_ins,
             user = self.request.user,
-            ingre_cpmt = CompartmentModel.objects.get(id=cpmt_id),
+            ingre_cpmt = cpmt,
             updated_at = datetime.datetime.now(),
             ingre_numbers = form.cleaned_data['numbers'],
             ingre_unit = form.cleaned_data['unit'],
             expiration_date = form.cleaned_data['expiration_date'],
         )
         return super().form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['compartment_pk'] = self.object.compartment.id
+        return kwargs
+
     def get_success_url(self):
         return reverse('cpmt_detail', kwargs={'pk' : self.object.compartment.pk})
 
@@ -294,19 +313,43 @@ class IngredientsDetail(DetailView):
 class InfomationList(ListView):
     template_name = 'info_list.html'
     model = InfomationModel
-    def get_queryset(self):
+    def get_context_data(self, **kwargs):
         current_user = self.request.user
+        current_user.ref = RefrigeratorModel.objects.filter(id=current_user.id)
+        ctx = super().get_context_data(**kwargs)
         if current_user.is_superuser:
-            return InfomationModel.objects.all().order_by('date').reverse
+            ctx['info_list'] = InfomationModel.objects.all()
+            return ctx
+        elif current_user.is_anonymous:
+            pass
         else:
-            return InfomationModel.objects.filter(id=current_user.id).order_by('date').reverse
-        return HttpResponseForbidden
+            ctx['refrigerator'] = current_user.ref
+            for info_item in current_user.ref:
+                ctx['info_list'] = InfomationModel.objects.filter(refrigerator_id=info_item.id)
+            return ctx
+
+    # def get_queryset(self):
+    #     current_user = self.request.user
+    #     current_user.ref = RefrigeratorModel.objects.filter(id=current_user.id)
+    #     if current_user.is_superuser:
+    #         return InfomationModel.objects.all()
+    #     else:
+    #         return InfomationModel.objects.filter(id=current_user.id)
+    #     return HttpResponseForbidden
 
 class InfomationCreate(CreateView):
     template_name = 'create_info.html'
     model = InfomationModel
     fields = ('title', 'text', 'refrigerator')
-    success_url = reverse_lazy('info')   
+    success_url = reverse_lazy('info')
+    def get_context_data(self, **kwargs):
+        current_user = self.request.user
+        context = super().get_context_data(**kwargs)
+        if current_user.is_superuser:
+            return context
+        else:    
+            context['form'].fields['refrigerator'].queryset = RefrigeratorModel.objects.filter(user=current_user.id)
+            return context
 
 class InfomationUpdate(UpdateView):
     template_name = 'update_info.html'
@@ -361,13 +404,25 @@ def logoutview(request):
 class SignupView(CreateView):
     form_class = SignupForm
     template_name = "signup.html"
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('home')
 
     def form_valid(self, form):
         user = form.save() #formの情報を保存
         login(self.request, user) #authentication
         self.object = user
         return HttpResponseRedirect(self.get_success_url())
+
+class UserChange(UpdateView):
+    form_class = UserChangeForm
+    template_name = "user_change.html"
+    success_url = reverse_lazy('home')
+    def get_object(self):
+        return self.request.user
+
+class PasswordChange(LoginRequiredMixin, PasswordChangeView):
+    # form_class = PasswordChangeForm
+    template_name = "password_change.html"
+    success_url = reverse_lazy('userchange')
 
 # from path.to.the.model import MyModel # 事前にモデルがimportされていない場合
 # MyModel._meta.get_fields()

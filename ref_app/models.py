@@ -38,7 +38,7 @@ class CompartmentModel(models.Model):
 
 UNIT = (
     ('ko','個'),('fukuro','袋'),('hon','本'),('gram','g'),
-    ('kilogram','kg'),('milliliter','ml'),('liter','L')
+    ('kilogram','kg'),('milliliter','ml'),('liter','L'),('hiki','匹')
 )
 class IngredientsModel(models.Model):
     name = models.CharField(max_length=200,verbose_name="材料名")
@@ -101,6 +101,12 @@ class InfomationModel(models.Model):
     title = models.CharField(max_length=50,verbose_name="タイトル")
     text = models.TextField(max_length=1000,verbose_name="メモ")
     date = models.DateField(auto_now_add=True)
+    user = models.ForeignKey(
+        User, 
+        null=True, 
+        on_delete=models.PROTECT,
+        verbose_name="ユーザー"
+    )
     refrigerator = models.ForeignKey(
         RefrigeratorModel, 
         on_delete=models.PROTECT,
@@ -110,11 +116,6 @@ class InfomationModel(models.Model):
         return self.title
 
 # Below here, these are additonal Models.
-
-class SalesInfoModel(models.Model):
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-    date = models.DateField(auto_now_add=True)
-    refrigerator = models.ForeignKey(RefrigeratorModel, on_delete=models.PROTECT)
 
 class TodaysRecipeModel(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
