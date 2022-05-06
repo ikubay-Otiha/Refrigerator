@@ -8,6 +8,9 @@
 {% block content %}
 <div class="create">
   <h3 class="display-9">食材作成</h3>
+  <div class='errormsg'>
+    <h6>{{ form.non_field_errors }}</h6>
+  </div>
   <form action='' method='POST'>{% csrf_token %}
           <div class="form-group">
               <form class="my-form" action="" method="POST">{% csrf_token %}

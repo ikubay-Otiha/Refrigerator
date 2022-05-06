@@ -23,7 +23,7 @@
               </middle>
             </div>
 
-            {% if child_cpmt.ingre_history == None %}
+            {% if child_cpmt.ingre_history.updated_at == None %}
 
             {% else %}
               <small>更新日:{{ child_cpmt.ingre_history.updated_at }}</small>

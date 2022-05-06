@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="{% static 'base.css' %}" rel="stylesheet">
-    <!-- for admin widgets -->
+    <!-- for bootstrap5 -->
+
     
     {% comment %}
     <!-- <link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css' %}"/> -->
@@ -26,7 +27,17 @@
   </head>
 
   <body>
-
+    {% if request.user.is_anonymous %}
+    <div class="container">
+      <div class='body'>
+        <h3>ログインするかユーザー登録をしてください。</h3>
+        <br><a href="{% url 'signup' %}" class="btn btn-primary">Signup</a>
+        <br>
+        <br><a href="{% url 'login' %}" class="btn btn-primary">login</a>
+      </div>
+    </div>
+  
+    {% else %}
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
         <a class="navbar-brand"><b>Refrigerator Manager 1.0.0</b></a>
@@ -156,3 +167,4 @@
   </footer>
   
 </html>
+{% endif %}

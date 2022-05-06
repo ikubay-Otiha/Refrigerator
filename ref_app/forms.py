@@ -1,9 +1,11 @@
+from multiprocessing.dummy import current_process
 from django import forms
 from .views import *
 from .models import IngredientsModel, CompartmentModel, RefrigeratorModel
 from django.contrib.admin.widgets import AdminDateWidget
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User
+# from bootstrap_datepicker_plus import DatePickerInput
 
 class RefrigeratorCreateForm(forms.ModelForm):
     class Meta:
@@ -67,6 +69,13 @@ class IngredientsCreateForm(forms.ModelForm):
         widgets = {
             'expiration_date' : forms.SelectDateWidget(),
         }
+    numbers = forms.IntegerField(
+        required = True,
+        max_value = 1000,
+        min_value = 0,
+        label = '数量',
+    )
+
     # form オブジェクトを初期化(作成)するときに実行される。
     # 初期化は view 側の get_form_kwargsで与えられた値をもとになされる
     def __init__(self, user, compartment_pk, *args, **kwargs):
@@ -88,6 +97,16 @@ class IngredientsCreateForm(forms.ModelForm):
             # DBに保存する
             ingredients.save()
         return ingredients
+    
+    def clean(self):
+        current_user = self.user
+        input_name = self.cleaned_data['name']
+        exist_ingre = IngredientsModel.objects.filter(user_id=current_user.id)
+        for ck_name in exist_ingre:
+            if ck_name.name == input_name:
+                raise forms.ValidationError("同じ名前の材料を作成することはできません")
+                return self.cleaned_data
+
 
 class IngredientsUpdateForm(forms.ModelForm):
     class Meta:
@@ -96,6 +115,13 @@ class IngredientsUpdateForm(forms.ModelForm):
         widgets = {
             'expiration_date' : forms.SelectDateWidget(),
         }
+    numbers = forms.IntegerField(
+        required = True,
+        max_value = 1000,
+        min_value = 0,
+        label = '数量',
+    )
+
     def __init__(self, user, compartment_pk, *args, **kwargs):
         self.user =user
         self.compartment = CompartmentModel.objects.get(pk=compartment_pk)        
