@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="body" href="{% static 'base.css' %}" rel="stylesheet">
+  <h2><b>アラーム</b></h2>
+
+  <h5>準備中です。</h5>
+</div>
+<div class="back" href="{% static 'base.css' %}" rel="stylesheet">
+    <a href="{% url 'home' %}" class="btn btn-secondary">戻る</a>
+</div>    
+
+{% endblock content %}

@@ -131,11 +131,18 @@ class CompartmentDetail(DetailView):
     model = CompartmentModel
     def get_context_data(self, **kwargs):
         get_cpmt = self.get_object()
+        sort_order_form_url = self.kwargs['sort'] 
         ctx = super().get_context_data(**kwargs)
         ctx['name'] = self.request.user
-        ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object())
         ctx['get_cpmt'] = get_cpmt
- 
+        if sort_order_form_url == 'def':
+            ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object()).order_by('-updated_at')
+        elif sort_order_form_url == 'reverse_date':
+            ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object()).order_by('updated_at')
+        elif sort_order_form_url == 'name':
+            ctx['child_ingredients'] = IngredientsModel.objects.filter(compartment=self.get_object()).order_by('name')
+        else:
+            pass
         for ingredients in ctx['child_ingredients']:
             ingredients.history = IngredientsHistoryModel.objects.filter(ingre_name=ingredients).order_by('-updated_at').first()
             exp_date = ingredients.expiration_date
@@ -304,9 +311,12 @@ class IngredientsDetail(DetailView):
     template_name = 'ingredients_detail.html'
     model = IngredientsModel
     def get_context_data(self, **kwargs):
-        cpmt = self.object.compartment
+        sort_order_form_url = self.kwargs['sort']
         context =  super().get_context_data(**kwargs)
-        context['ingre_histories_list'] = IngredientsHistoryModel.objects.filter(ingre_name=self.get_object()).order_by('-updated_at')
+        if sort_order_form_url == 'def':
+            context['ingre_histories_list'] = IngredientsHistoryModel.objects.filter(ingre_name=self.get_object()).order_by('-updated_at')
+        elif sort_order_form_url == 'reverse_date':
+            context['ingre_histories_list'] = IngredientsHistoryModel.objects.filter(ingre_name=self.get_object()).order_by('updated_at')
         return context
 
 # Below here, these are InformataionViews.
@@ -361,6 +371,12 @@ class InfomationDelete(DeleteView):
     template_name = 'delete_info.html'
     model = InfomationModel
     success_url = reverse_lazy('info')
+
+class AlarmList(ListView):
+    template_name = 'alarm.html'
+    success_url = reverse_lazy('alarm')
+    queryset = User.objects.all()
+
 
 # login,logout,signupview
 def loginview(request):

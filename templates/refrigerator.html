@@ -5,7 +5,9 @@
 <link href="{% static 'base.css' %}" rel="stylesheet">
 
 <div class="body" href="{% static 'base.css' %}" rel="stylesheet">
-    <h2>冷蔵庫一覧</h2>
+    <h2>
+        <b>冷蔵庫一覧</b>
+    </h2>
         <a href="{% url 'create_ref' %}" class="btn btn-primary">冷蔵庫作成</a>
         <a href="{% url 'ref' 'def' %}" class="btn btn-outline-primary">日付新しい順</a>
         <a href="{% url 'ref' 'sort_date' %}" class="btn btn-outline-primary">日付古い順</a>
