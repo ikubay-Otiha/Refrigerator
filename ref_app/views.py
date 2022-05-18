@@ -232,7 +232,7 @@ class IngredientsCreate(CreateView):
         # 自分で指定したModelに右辺を保存。
         # deleteに見せかけたupdateviewを作成。
     def get_success_url(self):
-        return reverse_lazy('cpmt_detail', kwargs={'pk' : self.kwargs["cpmt_pk"]})
+        return reverse_lazy('cpmt_detail', kwargs={'pk' : self.kwargs["cpmt_pk"], 'def':'def'})
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
