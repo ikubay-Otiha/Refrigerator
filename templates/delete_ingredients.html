@@ -7,7 +7,7 @@
     <h2>削除されたデータは復旧できません。それでもよろしいでしょうか？</h2>
     <form action='' method='POST'>{% csrf_token %}
         <button type="submit" class="btn btn-primary">削除</button>
-        <a href="{% url 'cpmt_detail' cpmt_pk %}" class="btn btn-secondary">戻る</a>
+        <a href="{% url 'cpmt_detail' cpmt_pk 'def' %}" class="btn btn-secondary">戻る</a>
     </form>
 </div>
 {% endblock content %}
