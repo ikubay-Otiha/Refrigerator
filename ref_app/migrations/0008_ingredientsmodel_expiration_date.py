@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ref_app', '0007_auto_20220209_0002'),
+        ("ref_app", "0007_auto_20220209_0002"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ingredientsmodel',
-            name='expiration_date',
+            model_name="ingredientsmodel",
+            name="expiration_date",
             field=models.DateField(auto_now_add=True),
             preserve_default=False,
         ),

@@ -1,3 +1,48 @@
+# Byte-compiled / optimized / PYC files
+__pycache__/
 *.pyc
-refrigerator/local_settings.py
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+build/
+dist/
+*.egg-info/
+
+# Local configuration
 local_settings.py
+env/
+.env
+.env.*
+
+# IDE files
+.idea/
+.vscode/
+
+# Logs
+logs/
+
+# Test-specific files
+*.log
+local.log
+test*.log
+tmp*
+*.pid
+*.sock
+
+# Django-specific
+db.sqlite3
+media/
+static/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Pipenv
+.venv/
+Pipfile
+Pipfile.lock
+
+# ローカルデータベース
+db.sqlite3

@@ -4,20 +4,30 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ref_app', '0003_ingredientsmodel'),
+        ("ref_app", "0003_ingredientsmodel"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ingredientsmodel',
-            name='ref_door',
-            field=models.ManyToManyField(to='ref_app.RefrigeratorModel'),
+            model_name="ingredientsmodel",
+            name="ref_door",
+            field=models.ManyToManyField(to="ref_app.RefrigeratorModel"),
         ),
         migrations.AlterField(
-            model_name='ingredientsmodel',
-            name='unit',
-            field=models.CharField(choices=[('ko', '個'), ('fukuro', '袋'), ('hon', '本'), ('gram', 'g'), ('kilogram', 'kg'), ('milliliter', 'ml'), ('liter', 'L')], max_length=50),
+            model_name="ingredientsmodel",
+            name="unit",
+            field=models.CharField(
+                choices=[
+                    ("ko", "個"),
+                    ("fukuro", "袋"),
+                    ("hon", "本"),
+                    ("gram", "g"),
+                    ("kilogram", "kg"),
+                    ("milliliter", "ml"),
+                    ("liter", "L"),
+                ],
+                max_length=50,
+            ),
         ),
     ]

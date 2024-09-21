@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ref_app', '0022_remove_ingredientshistorymodel_ingre_and_more'),
+        ("ref_app", "0022_remove_ingredientshistorymodel_ingre_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='ingredientshistorymodel',
-            name='update_user',
+            model_name="ingredientshistorymodel",
+            name="update_user",
         ),
     ]

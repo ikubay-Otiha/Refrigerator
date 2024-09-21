@@ -1,3 +1,6 @@
 pip install -r requirement.txt
-cd refrigerator/
-python get_random_secret_key.py > local_settings.py
+
+touch .env
+
+DEBUG=TRUE
+DJANGO_SECRET_KEY='your_secret_key'

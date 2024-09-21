@@ -5,16 +5,19 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ref_app', '0010_rename_tixt_infomationmodel_text'),
+        ("ref_app", "0010_rename_tixt_infomationmodel_text"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='infomationmodel',
-            name='refrigerator',
-            field=models.ForeignKey(default=4, on_delete=django.db.models.deletion.PROTECT, to='ref_app.refrigeratormodel'),
+            model_name="infomationmodel",
+            name="refrigerator",
+            field=models.ForeignKey(
+                default=4,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="ref_app.refrigeratormodel",
+            ),
             preserve_default=False,
         ),
     ]

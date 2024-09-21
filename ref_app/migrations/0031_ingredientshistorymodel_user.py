@@ -6,16 +6,19 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('ref_app', '0030_alter_ingredientshistorymodel_ingre_name'),
+        ("ref_app", "0030_alter_ingredientshistorymodel_ingre_name"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ingredientshistorymodel',
-            name='user',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL),
+            model_name="ingredientshistorymodel",
+            name="user",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

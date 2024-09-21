@@ -5,25 +5,26 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ref_app', '0031_ingredientshistorymodel_user'),
+        ("ref_app", "0031_ingredientshistorymodel_user"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='ingredientsmodel',
-            name='date',
+            model_name="ingredientsmodel",
+            name="date",
         ),
         migrations.AddField(
-            model_name='ingredientsmodel',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="ingredientsmodel",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='ingredientsmodel',
-            name='updated_at',
+            model_name="ingredientsmodel",
+            name="updated_at",
             field=models.DateTimeField(auto_now=True),
         ),
     ]

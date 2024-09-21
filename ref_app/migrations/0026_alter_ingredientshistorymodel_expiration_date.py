@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ref_app', '0025_alter_compartmentmodel_name_and_more'),
+        ("ref_app", "0025_alter_compartmentmodel_name_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ingredientshistorymodel',
-            name='expiration_date',
-            field=models.DateField(null=True, verbose_name='賞味期限'),
+            model_name="ingredientshistorymodel",
+            name="expiration_date",
+            field=models.DateField(null=True, verbose_name="賞味期限"),
         ),
     ]

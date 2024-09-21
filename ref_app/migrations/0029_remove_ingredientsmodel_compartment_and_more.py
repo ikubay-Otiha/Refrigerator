@@ -5,20 +5,25 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ref_app', '0028_remove_ingredientshistorymodel_update_date_and_more'),
+        ("ref_app", "0028_remove_ingredientshistorymodel_update_date_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='ingredientsmodel',
-            name='compartment',
+            model_name="ingredientsmodel",
+            name="compartment",
         ),
         migrations.AddField(
-            model_name='ingredientsmodel',
-            name='compartment',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='ing_cpmt', to='ref_app.compartmentmodel', verbose_name='対象冷蔵室'),
+            model_name="ingredientsmodel",
+            name="compartment",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="ing_cpmt",
+                to="ref_app.compartmentmodel",
+                verbose_name="対象冷蔵室",
+            ),
             preserve_default=False,
         ),
     ]

@@ -7,10 +7,11 @@ from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 # from bootstrap_datepicker_plus import DatePickerInput
 
+
 class RefrigeratorCreateForm(forms.ModelForm):
     class Meta:
         model = RefrigeratorModel
-        fields = ('name',)
+        fields = ("name",)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -27,10 +28,11 @@ class RefrigeratorCreateForm(forms.ModelForm):
             refrigerator.save()
         return refrigerator
 
+
 class RefrigeratorUpdateForm(forms.ModelForm):
     class Meta:
         model = RefrigeratorModel
-        fields = ('name',)
+        fields = ("name",)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -44,10 +46,11 @@ class RefrigeratorUpdateForm(forms.ModelForm):
             refrigerator.save()
         return refrigerator
 
+
 class CompartmentCrateForm(forms.ModelForm):
     class Meta:
         model = CompartmentModel
-        fields = ('name',)
+        fields = ("name",)
 
     def __init__(self, refrigerator_pk, *args, **kwargs):
         self.refrigerator = RefrigeratorModel.objects.get(pk=refrigerator_pk)
@@ -61,19 +64,26 @@ class CompartmentCrateForm(forms.ModelForm):
             compartment.save()
         return compartment
 
+
 class IngredientsCreateForm(forms.ModelForm):
     class Meta:
         model = IngredientsModel
-        fields = ('name', 'numbers', 'unit', 'expiration_date',)
+        fields = (
+            "name",
+            "numbers",
+            "unit",
+            "expiration_date",
+        )
         # 入力formに表示させないfields('user', 'compartment')は記載しない
         widgets = {
-            'expiration_date' : forms.SelectDateWidget(),
+            "expiration_date": forms.SelectDateWidget(),
         }
+
     numbers = forms.IntegerField(
-        required = True,
-        max_value = 1000,
-        min_value = 0,
-        label = '数量',
+        required=True,
+        max_value=1000,
+        min_value=0,
+        label="数量",
     )
 
     # form オブジェクトを初期化(作成)するときに実行される。
@@ -85,10 +95,9 @@ class IngredientsCreateForm(forms.ModelForm):
 
     # form の値の validate 完了後にオブジェクトをセーブするときに実行される
     def save(self, commit=True):
-        
         # まず、saveするオブジェクトを作成する commit=FalseとすることでDBへの保存はまだしない
-        ingredients = super().save(commit=False) #saveするobjectの作成
-        
+        ingredients = super().save(commit=False)  # saveするobjectの作成
+
         # __init__ で設定された user と compartment をsaveするオブジェクトに追加
         ingredients.user = self.user
         ingredients.compartment = self.compartment
@@ -97,10 +106,10 @@ class IngredientsCreateForm(forms.ModelForm):
             # DBに保存する
             ingredients.save()
         return ingredients
-    
+
     def clean(self):
         current_user = self.user
-        input_name = self.cleaned_data['name']
+        input_name = self.cleaned_data["name"]
         exist_ingre = IngredientsModel.objects.filter(user_id=current_user.id)
         for ck_name in exist_ingre:
             if ck_name.name == input_name:
@@ -111,20 +120,26 @@ class IngredientsCreateForm(forms.ModelForm):
 class IngredientsUpdateForm(forms.ModelForm):
     class Meta:
         model = IngredientsModel
-        fields = ('name', 'numbers', 'unit', 'expiration_date',)
+        fields = (
+            "name",
+            "numbers",
+            "unit",
+            "expiration_date",
+        )
         widgets = {
-            'expiration_date' : forms.SelectDateWidget(),
+            "expiration_date": forms.SelectDateWidget(),
         }
+
     numbers = forms.IntegerField(
-        required = True,
-        max_value = 1000,
-        min_value = 0,
-        label = '数量',
+        required=True,
+        max_value=1000,
+        min_value=0,
+        label="数量",
     )
 
     def __init__(self, user, compartment_pk, *args, **kwargs):
-        self.user =user
-        self.compartment = CompartmentModel.objects.get(pk=compartment_pk)        
+        self.user = user
+        self.compartment = CompartmentModel.objects.get(pk=compartment_pk)
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
@@ -136,24 +151,26 @@ class IngredientsUpdateForm(forms.ModelForm):
             ingredients.save()
         return ingredients
 
+
 class SignupForm(UserCreationForm):
     class Meta:
         model = User
         fields = ["username", "first_name", "last_name", "email"]
+
 
 class UserChangeForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["username", "first_name", "last_name", "email"]
 
+
 class PasswordChangeForm(PasswordChangeForm):
     def __init__(self, user, *args, **kwargs):
         super().__init__(self, *args, **kwargs)
         for field in self.fields.values():
-            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs["class"] = "form-control"
 
     def clean_old_password(self):
         old_password = self.cleaned_data["old_password"]
         self.user.check_password = old_password
         super().clean_old_password(self)
-

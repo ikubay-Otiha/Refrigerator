@@ -5,34 +5,41 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ref_app', '0013_alter_refrigeratormodel_name'),
+        ("ref_app", "0013_alter_refrigeratormodel_name"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='infomationmodel',
-            name='date',
-            field=models.DateField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="infomationmodel",
+            name="date",
+            field=models.DateField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='ingredientsmodel',
-            name='date',
-            field=models.DateField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="ingredientsmodel",
+            name="date",
+            field=models.DateField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='salesinfomodel',
-            name='date',
-            field=models.DateField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="salesinfomodel",
+            name="date",
+            field=models.DateField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='todaysrecipemodel',
-            name='date',
-            field=models.DateField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="todaysrecipemodel",
+            name="date",
+            field=models.DateField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
     ]

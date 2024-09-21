@@ -6,71 +6,114 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('ref_app', '0024_ingredientshistorymodel_expiration_date_and_more'),
+        ("ref_app", "0024_ingredientshistorymodel_expiration_date_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='compartmentmodel',
-            name='name',
-            field=models.CharField(choices=[('Refrigerator', '冷蔵室'), ('Freezer', '冷凍室'), ('Vegetable', '野菜室'), ('Chilled', 'チルド室'), ('Icebox', 'アイスボックス')], max_length=100, verbose_name='冷蔵室名'),
+            model_name="compartmentmodel",
+            name="name",
+            field=models.CharField(
+                choices=[
+                    ("Refrigerator", "冷蔵室"),
+                    ("Freezer", "冷凍室"),
+                    ("Vegetable", "野菜室"),
+                    ("Chilled", "チルド室"),
+                    ("Icebox", "アイスボックス"),
+                ],
+                max_length=100,
+                verbose_name="冷蔵室名",
+            ),
         ),
         migrations.AlterField(
-            model_name='compartmentmodel',
-            name='refrigerator',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='ref_app.refrigeratormodel', verbose_name='冷蔵庫名'),
+            model_name="compartmentmodel",
+            name="refrigerator",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                to="ref_app.refrigeratormodel",
+                verbose_name="冷蔵庫名",
+            ),
         ),
         migrations.AlterField(
-            model_name='infomationmodel',
-            name='refrigerator',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='ref_app.refrigeratormodel', verbose_name='冷蔵庫名'),
+            model_name="infomationmodel",
+            name="refrigerator",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                to="ref_app.refrigeratormodel",
+                verbose_name="冷蔵庫名",
+            ),
         ),
         migrations.AlterField(
-            model_name='infomationmodel',
-            name='text',
-            field=models.TextField(max_length=1000, verbose_name='メモ'),
+            model_name="infomationmodel",
+            name="text",
+            field=models.TextField(max_length=1000, verbose_name="メモ"),
         ),
         migrations.AlterField(
-            model_name='infomationmodel',
-            name='title',
-            field=models.CharField(max_length=50, verbose_name='タイトル'),
+            model_name="infomationmodel",
+            name="title",
+            field=models.CharField(max_length=50, verbose_name="タイトル"),
         ),
         migrations.AlterField(
-            model_name='ingredientshistorymodel',
-            name='ingre_cpmt',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='history_ing_cpmt', to='ref_app.compartmentmodel', verbose_name='冷蔵室名'),
+            model_name="ingredientshistorymodel",
+            name="ingre_cpmt",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="history_ing_cpmt",
+                to="ref_app.compartmentmodel",
+                verbose_name="冷蔵室名",
+            ),
         ),
         migrations.AlterField(
-            model_name='ingredientsmodel',
-            name='compartment',
-            field=models.ManyToManyField(related_name='ing_cpmt', to='ref_app.compartmentmodel', verbose_name='対象冷蔵室'),
+            model_name="ingredientsmodel",
+            name="compartment",
+            field=models.ManyToManyField(
+                related_name="ing_cpmt",
+                to="ref_app.compartmentmodel",
+                verbose_name="対象冷蔵室",
+            ),
         ),
         migrations.AlterField(
-            model_name='ingredientsmodel',
-            name='name',
-            field=models.CharField(max_length=200, verbose_name='材料名'),
+            model_name="ingredientsmodel",
+            name="name",
+            field=models.CharField(max_length=200, verbose_name="材料名"),
         ),
         migrations.AlterField(
-            model_name='ingredientsmodel',
-            name='numbers',
-            field=models.IntegerField(verbose_name='数量'),
+            model_name="ingredientsmodel",
+            name="numbers",
+            field=models.IntegerField(verbose_name="数量"),
         ),
         migrations.AlterField(
-            model_name='ingredientsmodel',
-            name='unit',
-            field=models.CharField(choices=[('ko', '個'), ('fukuro', '袋'), ('hon', '本'), ('gram', 'g'), ('kilogram', 'kg'), ('milliliter', 'ml'), ('liter', 'L')], max_length=50, verbose_name='単位'),
+            model_name="ingredientsmodel",
+            name="unit",
+            field=models.CharField(
+                choices=[
+                    ("ko", "個"),
+                    ("fukuro", "袋"),
+                    ("hon", "本"),
+                    ("gram", "g"),
+                    ("kilogram", "kg"),
+                    ("milliliter", "ml"),
+                    ("liter", "L"),
+                ],
+                max_length=50,
+                verbose_name="単位",
+            ),
         ),
         migrations.AlterField(
-            model_name='refrigeratormodel',
-            name='name',
-            field=models.CharField(max_length=100, null=True, unique=True, verbose_name='冷蔵庫名'),
+            model_name="refrigeratormodel",
+            name="name",
+            field=models.CharField(
+                max_length=100, null=True, unique=True, verbose_name="冷蔵庫名"
+            ),
         ),
         migrations.AlterField(
-            model_name='refrigeratormodel',
-            name='user',
-            field=models.ManyToManyField(to=settings.AUTH_USER_MODEL, verbose_name='ユーザー'),
+            model_name="refrigeratormodel",
+            name="user",
+            field=models.ManyToManyField(
+                to=settings.AUTH_USER_MODEL, verbose_name="ユーザー"
+            ),
         ),
     ]

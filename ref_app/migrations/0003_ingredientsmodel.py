@@ -4,19 +4,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ref_app', '0002_refrigeratormodel_category'),
+        ("ref_app", "0002_refrigeratormodel_category"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='IngredientsModel',
+            name="IngredientsModel",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('numbers', models.IntegerField()),
-                ('unit', models.CharField(choices=[('ko', '個'), ('fukuro', '袋'), ('hon', '本')], max_length=50)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("numbers", models.IntegerField()),
+                (
+                    "unit",
+                    models.CharField(
+                        choices=[("ko", "個"), ("fukuro", "袋"), ("hon", "本")],
+                        max_length=50,
+                    ),
+                ),
             ],
         ),
     ]

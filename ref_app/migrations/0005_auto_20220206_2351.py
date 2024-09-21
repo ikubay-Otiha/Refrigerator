@@ -4,36 +4,43 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ref_app', '0004_auto_20220206_1132'),
+        ("ref_app", "0004_auto_20220206_1132"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CompartmentModel',
+            name="CompartmentModel",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('date', models.DateField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("date", models.DateField(auto_now_add=True)),
             ],
         ),
         migrations.RenameField(
-            model_name='refrigeratormodel',
-            old_name='doorname',
-            new_name='name',
+            model_name="refrigeratormodel",
+            old_name="doorname",
+            new_name="name",
         ),
         migrations.RemoveField(
-            model_name='ingredientsmodel',
-            name='ref_door',
+            model_name="ingredientsmodel",
+            name="ref_door",
         ),
         migrations.RemoveField(
-            model_name='refrigeratormodel',
-            name='category',
+            model_name="refrigeratormodel",
+            name="category",
         ),
         migrations.AddField(
-            model_name='ingredientsmodel',
-            name='compartment',
-            field=models.ManyToManyField(to='ref_app.CompartmentModel'),
+            model_name="ingredientsmodel",
+            name="compartment",
+            field=models.ManyToManyField(to="ref_app.CompartmentModel"),
         ),
     ]
