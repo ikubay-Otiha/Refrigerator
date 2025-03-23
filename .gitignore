@@ -38,6 +38,8 @@ static/
 # System files
 .DS_Store
 Thumbs.db
+.vscode
+.ruff_cache
 
 # Pipenv
 .venv/
